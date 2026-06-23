@@ -4,7 +4,9 @@
 
 <p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
 
-# vgi-rerank
+# Cross-Encoder RAG Reranking in DuckDB
+
+> **vgi-rerank** · a [Query.Farm](https://query.farm) VGI worker · powered by fastembed (ONNX)
 
 Local **cross-encoder reranking** as a DuckDB SQL function — the precision
 second stage of retrieval-augmented generation (RAG), entirely **on your machine**.
