@@ -78,7 +78,7 @@ jobs:
         # `docstring_parser` import namespace with the plain `docstring-parser`
         # that vgi-rpc pulls in transitively. Co-installed, whichever lands last
         # wins — a non-deterministic ImportError. uvx gives pydoclint its own env.
-        run: uvx --from "pydoclint>=0.5" pydoclint vgi_rerank rerank_worker.py serve.py
+        run: uvx pydoclint --config pyproject.toml vgi_rerank rerank_worker.py serve.py
 
   # Resolve the latest published haybarn release once, so the whole matrix tests
   # the same version (and we never hardcode/pin it).
