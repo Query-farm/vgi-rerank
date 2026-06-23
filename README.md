@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="docs/vgi-logo.png" alt="Vector Gateway Interface (VGI)" width="320">
+</p>
+
+<p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
+
 # vgi-rerank
 
 Local **cross-encoder reranking** as a DuckDB SQL function — the precision
@@ -166,3 +172,12 @@ Worker code: **MIT** (see [LICENSE](LICENSE)). The default model
 `Xenova/ms-marco-MiniLM-L-6-v2` is Apache-2.0-licensed; `BAAI/bge-reranker-base`
 is MIT; `fastembed` is Apache-2.0; ONNX Runtime is MIT. The `vgi` DuckDB extension
 and `vgi-python` are licensed separately by Query Farm.
+
+---
+
+## Authorship & License
+
+Written by [Query.Farm](https://query.farm) — every VGI worker is designed and built by Query.Farm.
+
+Copyright 2026 Query Farm LLC - https://query.farm
+
