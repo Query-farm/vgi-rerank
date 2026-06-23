@@ -1,0 +1,41 @@
+# name: test/sql/tables.test
+# group: [vgi_rerank]
+#
+# Discovery table function supported_models() via ATTACH + SELECT. The catalog of
+# supported models is static (no model is loaded), so these are exact assertions.
+
+require-env VGI_RERANK_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION '${VGI_RERANK_WORKER}');
+
+# ---- supported_models() rows ------------------------------------------------
+
+query I
+SELECT count(*) >= 1 FROM rerank.supported_models();
+----
+true
+
+# The default model is listed and is permissively licensed (Apache-2.0).
+query I
+SELECT license FROM rerank.supported_models() WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2';
+----
+apache-2.0
+
+# Every advertised model is commercially usable (Apache-2.0 or MIT).
+query I
+SELECT bool_and(license IN ('apache-2.0', 'mit')) FROM rerank.supported_models();
+----
+true
+
+# Output schema is exactly (model, license).
+query I
+SELECT count(*) FROM (DESCRIBE SELECT * FROM rerank.supported_models());
+----
+2
+
+statement ok
+DETACH rerank;
