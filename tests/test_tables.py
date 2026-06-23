@@ -21,9 +21,7 @@ class TestSupportedModels:
 
     def test_default_model_present_and_permissive(self) -> None:
         table = invoke_table_function(SupportedModelsFunction)
-        mapping = dict(
-            zip(table.column("model").to_pylist(), table.column("license").to_pylist(), strict=True)
-        )
+        mapping = dict(zip(table.column("model").to_pylist(), table.column("license").to_pylist(), strict=True))
         assert mapping[models.DEFAULT_MODEL] == "apache-2.0"
 
     def test_matches_models_module(self) -> None:

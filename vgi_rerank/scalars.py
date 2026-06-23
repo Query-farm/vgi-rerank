@@ -22,7 +22,7 @@ functions and macros, not scalars. So ``rerank_score`` exposes its optional
     SELECT rerank.rerank_score(:q, chunk)                          FROM c;  -- default model
     SELECT rerank.rerank_score(:q, chunk, 'BAAI/bge-reranker-base') FROM c;  -- pick a model
 
-Returns
+Returns:
 -------
 ``rerank_score`` returns ``DOUBLE`` (a raw relevance logit; higher = more relevant,
 meaningful only *relative to other documents for the same query*). It declares an
@@ -74,6 +74,8 @@ class RerankScore(ScalarFunction):
     """``rerank_score(query, document)`` -- cross-encoder relevance score (default model)."""
 
     class Meta:
+        """Function metadata."""
+
         name = "rerank_score"
         description = (
             "Cross-encoder relevance score (DOUBLE) for a (query, document) pair using the "
@@ -84,8 +86,7 @@ class RerankScore(ScalarFunction):
         )
         categories = ["rerank", "retrieval"]
         examples = _ex(
-            "SELECT rerank.rerank_score('how do I reset my password', "
-            "'Click the forgot password link to reset it.')",
+            "SELECT rerank.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.')",
             "Score one query/document pair with the default model",
         )
 
@@ -95,6 +96,7 @@ class RerankScore(ScalarFunction):
         query: Annotated[pa.StringArray, Param(doc="Search query (usually a constant broadcast across the rows)")],
         document: Annotated[pa.StringArray, Param(doc="Candidate document/passage to score against the query")],
     ) -> Annotated[pa.DoubleArray, Returns(arrow_type=pa.float64())]:
+        """Score each (query, document) pair with the default model."""
         return _score_array(query, document, model=None)
 
 
@@ -102,6 +104,8 @@ class RerankScoreModel(ScalarFunction):
     """``rerank_score(query, document, model)`` -- relevance score with an explicit model."""
 
     class Meta:
+        """Function metadata."""
+
         name = "rerank_score"
         description = (
             "Cross-encoder relevance score (DOUBLE) for a (query, document) pair with an explicit "
@@ -120,6 +124,7 @@ class RerankScoreModel(ScalarFunction):
         document: Annotated[pa.StringArray, Param(doc="Candidate document/passage")],
         model: Annotated[str, ConstParam(doc="Model name; see supported_models()")],
     ) -> Annotated[pa.DoubleArray, Returns(arrow_type=pa.float64())]:
+        """Score each (query, document) pair with an explicit model."""
         return _score_array(query, document, model=model or None)
 
 
@@ -132,6 +137,8 @@ class RerankVersion(ScalarFunction):
     """``rerank_version()`` -- worker + backend + default-model identity string."""
 
     class Meta:
+        """Function metadata."""
+
         name = "rerank_version"
         description = "Version string: worker version, fastembed backend, and default cross-encoder model"
         categories = ["metadata"]
@@ -144,6 +151,7 @@ class RerankVersion(ScalarFunction):
     def compute(
         cls,
     ) -> Annotated[pa.StringArray, Returns(arrow_type=pa.string())]:
+        """Return the worker/backend/default-model identity string."""
         return pa.array([_version_string()], type=pa.string())
 
 

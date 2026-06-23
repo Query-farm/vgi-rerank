@@ -56,6 +56,8 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
     FIXED_SCHEMA: ClassVar[pa.Schema] = _SUPPORTED_MODELS_SCHEMA
 
     class Meta:
+        """Function metadata."""
+
         name = "supported_models"
         description = "Every (model, license) cross-encoder the rerank worker supports"
         categories = ["rerank", "metadata"]
@@ -72,11 +74,13 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
 
     @classmethod
     def cardinality(cls, params: BindParams[_NoArgs]) -> TableCardinality:
+        """Return the exact row count (one per supported model)."""
         n = len(models.supported_models())
         return TableCardinality(estimate=n, max=n)
 
     @classmethod
     def process(cls, params: ProcessParams[_NoArgs], state: None, out: OutputCollector) -> None:
+        """Emit one row per supported (model, license) pair."""
         rows = models.supported_models()
         out.emit(
             pa.RecordBatch.from_pydict(
