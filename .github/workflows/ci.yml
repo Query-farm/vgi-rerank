@@ -80,6 +80,37 @@ jobs:
         # wins — a non-deterministic ImportError. uvx gives pydoclint its own env.
         run: uvx pydoclint --config pyproject.toml vgi_rerank rerank_worker.py serve.py
 
+  # Metadata-quality gate: the vgi-lint linter attaches the worker through the
+  # real signed `vgi` community extension and scores its catalog/schema/function
+  # metadata (descriptions, examples, provenance tags). Kept a separate job so the
+  # score is visible. `fail-on: info` means any finding fails the build.
+  metadata-quality:
+    name: Metadata quality (vgi-lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.2.0
+
+      - name: Set up Python 3.13
+        run: uv python install 3.13
+
+      - name: Install the worker (from the lockfile, with the http extra)
+        run: uv sync --frozen --python 3.13 --extra http
+
+      # Warm the fastembed/ONNX model cache so launching the worker for the lint
+      # attach doesn't pay the ~80 MB download inline (best-effort; lint only
+      # introspects the catalog, but warming keeps the attach fast/deterministic).
+      - name: Warm the reranker model cache
+        run: uv run --no-sync python -c "from vgi_rerank import models; models.warm_up()"
+
+      - name: vgi-lint
+        uses: Query-farm/vgi-lint-check@v1
+        with:
+          location: "uv run --no-sync rerank_worker.py"
+          fail-on: info
+
   # Resolve the latest published haybarn release once, so the whole matrix tests
   # the same version (and we never hardcode/pin it).
   resolve-haybarn:

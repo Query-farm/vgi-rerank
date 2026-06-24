@@ -61,6 +61,16 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
         name = "supported_models"
         description = "Every (model, license) cross-encoder the rerank worker supports"
         categories = ["rerank", "metadata"]
+        tags = {
+            "vgi.columns_md": (
+                "| column | type | description |\n"
+                "|---|---|---|\n"
+                "| `model` | VARCHAR | Model name to pass as the optional third argument to "
+                "`rerank_score(query, document, model)`. |\n"
+                "| `license` | VARCHAR | SPDX-style license of the model weights (every "
+                "advertised model is permissive / commercially usable). |"
+            ),
+        }
         examples = [
             FunctionExample(
                 sql="SELECT * FROM rerank.supported_models() ORDER BY model",

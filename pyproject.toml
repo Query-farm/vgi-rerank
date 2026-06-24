@@ -29,7 +29,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "vgi-python>=0.8.3",
+    "vgi-python>=0.8.4",
     "fastembed>=0.5",
     "pyarrow",
 ]
@@ -45,7 +45,7 @@ dev = [
 # addition to stdio/AF_UNIX. That path needs vgi-python's `http` extra
 # (waitress). CI's http transport leg installs this via `uv sync --extra http`.
 http = [
-    "vgi-python[http]>=0.8.3",
+    "vgi-python[http]>=0.8.4",
 ]
 
 [project.urls]
