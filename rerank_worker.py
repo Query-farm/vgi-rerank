@@ -55,7 +55,13 @@ _RERANK_CATALOG = Catalog(
     comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision.",
     source_url="https://github.com/Query-farm/vgi-rerank",
     tags={
-        "vgi.description_llm": (
+        "vgi.title": "Local Cross-Encoder Reranking",
+        "vgi.keywords": (
+            "rerank, reranker, cross-encoder, relevance, ranking, retrieval, RAG, "
+            "second-stage, top-k, precision, fastembed, ONNX, MS MARCO, MiniLM, "
+            "bge-reranker, semantic search, order by, vss, bm25"
+        ),
+        "vgi.doc_llm": (
             "Score the relevance of a (query, document) pair with a local cross-encoder "
             "reranker (fastembed/ONNX, no torch) and reorder a recall-produced top-K "
             "candidate set. rerank_score(query, document[, model]) returns a DOUBLE "
@@ -67,15 +73,26 @@ _RERANK_CATALOG = Catalog(
             "candidates that recall (DuckDB VSS / BM25) already produced, never over a "
             "whole corpus."
         ),
-        "vgi.description_md": (
+        "vgi.doc_md": (
             "# rerank\n\n"
             "Local cross-encoder reranking (fastembed/ONNX -- no torch) as DuckDB SQL "
             "functions: the precision **second stage** of a local RAG stack.\n\n"
+            "## Why a cross-encoder\n\n"
             "A cross-encoder reads the query and document *together*, so its score is more "
-            "accurate than bi-encoder cosine similarity but cannot be precomputed -- run it "
-            "only over a recall-produced top-K candidate set.\n\n"
-            "Scalars: `rerank_score(query, document)`, `rerank_score(query, document, model)`, "
-            "`rerank_version()`. Table: `supported_models()`."
+            "accurate than bi-encoder cosine similarity -- but it cannot be precomputed or "
+            "cached, so run it only over a recall-produced top-K candidate set, never over a "
+            "whole corpus.\n\n"
+            "## Surface\n\n"
+            "- Scalars: `rerank_score(query, document)`, "
+            "`rerank_score(query, document, model)`, `rerank_version()`.\n"
+            "- Table: `supported_models()`.\n\n"
+            "## Usage\n\n"
+            "```sql\n"
+            "SELECT id, chunk\n"
+            "FROM candidates\n"
+            "ORDER BY rerank.rerank_score('how do I reset my password', chunk) DESC\n"
+            "LIMIT 10;\n"
+            "```"
         ),
         "vgi.author": "Query.Farm",
         "vgi.copyright": "Copyright 2026 Query Farm LLC - https://query.farm",
@@ -88,7 +105,18 @@ _RERANK_CATALOG = Catalog(
             name="main",
             comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision",
             tags={
-                "vgi.description_llm": (
+                "vgi.title": "Rerank - main schema",
+                "vgi.keywords": (
+                    "rerank, rerank_score, supported_models, rerank_version, "
+                    "cross-encoder, relevance, reranker, retrieval, RAG, top-k, "
+                    "order by, semantic search"
+                ),
+                "vgi.source_url": ("https://github.com/Query-farm/vgi-rerank/blob/main/rerank_worker.py"),
+                # VGI123 classifying tags use BARE keys (not vgi.-namespaced).
+                "domain": "information-retrieval",
+                "category": "reranking",
+                "topic": "cross-encoder-relevance",
+                "vgi.doc_llm": (
                     "Cross-encoder relevance scoring and reranker discovery: rerank_score "
                     "scores a (query, document) pair to a DOUBLE relevance logit for "
                     "ORDER BY ... DESC LIMIT k reranking of a top-K candidate set, "
@@ -96,10 +124,20 @@ _RERANK_CATALOG = Catalog(
                     "licenses, and rerank_version reports the worker/backend/default-model "
                     "identity."
                 ),
-                "vgi.description_md": (
-                    "Cross-encoder relevance scoring (`rerank_score`), reranker-model "
-                    "discovery (`supported_models`), and version identity (`rerank_version`) "
-                    "for second-stage RAG precision."
+                "vgi.doc_md": (
+                    "## main\n\n"
+                    "The single schema of the `rerank` catalog. It groups the per-row "
+                    "relevance scorer `rerank_score` (a scalar with an optional explicit-"
+                    "model arity overload), the `supported_models()` discovery table, and "
+                    "the `rerank_version()` identity helper -- everything needed to add "
+                    "second-stage cross-encoder reranking to a local RAG pipeline."
+                ),
+                # VGI506 representative example queries for the schema.
+                "vgi.example_queries": (
+                    "SELECT rerank.main.rerank_score('how do I reset my password', "
+                    "'Click the forgot password link to reset it.');\n"
+                    "SELECT * FROM rerank.main.supported_models() ORDER BY model;\n"
+                    "SELECT rerank.main.rerank_version();"
                 ),
             },
             functions=[*SCALAR_FUNCTIONS, *TABLE_FUNCTIONS],

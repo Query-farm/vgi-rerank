@@ -62,7 +62,36 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
         description = "Every (model, license) cross-encoder the rerank worker supports"
         categories = ["rerank", "metadata"]
         tags = {
-            "vgi.columns_md": (
+            "vgi.title": "Supported Reranker Models Catalog",
+            "vgi.keywords": (
+                "supported_models, models, reranker, cross-encoder, license, discovery, "
+                "available models, catalog, ms-marco, bge-reranker, list models"
+            ),
+            "vgi.source_url": ("https://github.com/Query-farm/vgi-rerank/blob/main/vgi_rerank/tables.py"),
+            "vgi.doc_llm": (
+                "Discovery table listing every cross-encoder reranker model this worker can "
+                "run, one row per model, with the SPDX-style license of its weights. Use it "
+                "to learn which model names are valid as the optional third argument to "
+                "`rerank_score(query, document, model)` and to confirm licensing before "
+                "adopting a model. Takes no arguments and loads no model. Columns: `model` "
+                "(the name to pass to rerank_score) and `license` (all advertised models are "
+                "permissive / commercially usable)."
+            ),
+            "vgi.doc_md": (
+                "# supported_models()\n\n"
+                "A discovery table of every cross-encoder reranker the worker can run -- one "
+                "row per model.\n\n"
+                "## Result columns\n\n"
+                "| column | type | description |\n"
+                "|---|---|---|\n"
+                "| `model` | VARCHAR | Name to pass as the optional third argument to "
+                "`rerank_score(query, document, model)`. |\n"
+                "| `license` | VARCHAR | SPDX-style license of the model weights. |\n\n"
+                "## Notes\n\n"
+                "Every advertised model is permissive / commercially usable. Calling this "
+                "function loads no model, so it is always cheap."
+            ),
+            "vgi.result_columns_md": (
                 "| column | type | description |\n"
                 "|---|---|---|\n"
                 "| `model` | VARCHAR | Model name to pass as the optional third argument to "
