@@ -11,6 +11,7 @@ home). The per-row scoring function is a *scalar* and lives in
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -63,11 +64,21 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
         categories = ["rerank", "metadata"]
         tags = {
             "vgi.title": "Supported Reranker Models Catalog",
-            "vgi.keywords": (
-                "supported_models, models, reranker, cross-encoder, license, discovery, "
-                "available models, catalog, ms-marco, bge-reranker, list models"
+            "vgi.keywords": json.dumps(
+                [
+                    "supported_models",
+                    "models",
+                    "reranker",
+                    "cross-encoder",
+                    "license",
+                    "discovery",
+                    "available models",
+                    "catalog",
+                    "ms-marco",
+                    "bge-reranker",
+                    "list models",
+                ]
             ),
-            "vgi.source_url": ("https://github.com/Query-farm/vgi-rerank/blob/main/vgi_rerank/tables.py"),
             "vgi.doc_llm": (
                 "Discovery table listing every cross-encoder reranker model this worker can "
                 "run, one row per model, with the SPDX-style license of its weights. Use it "

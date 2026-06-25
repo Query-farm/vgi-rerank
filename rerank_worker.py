@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.8.4",
+#     "vgi-python[http]>=0.8.5",
 #     "fastembed>=0.5",
 # ]
 # ///
@@ -40,14 +40,15 @@ Usage:
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from vgi import Worker
-from vgi.catalog import Catalog, Schema
+from vgi.catalog import Catalog, Schema, Table
 
 from vgi_rerank import models
 from vgi_rerank.scalars import SCALAR_FUNCTIONS
-from vgi_rerank.tables import TABLE_FUNCTIONS
+from vgi_rerank.tables import TABLE_FUNCTIONS, SupportedModelsFunction
 
 _RERANK_CATALOG = Catalog(
     name="rerank",
@@ -56,10 +57,28 @@ _RERANK_CATALOG = Catalog(
     source_url="https://github.com/Query-farm/vgi-rerank",
     tags={
         "vgi.title": "Local Cross-Encoder Reranking",
-        "vgi.keywords": (
-            "rerank, reranker, cross-encoder, relevance, ranking, retrieval, RAG, "
-            "second-stage, top-k, precision, fastembed, ONNX, MS MARCO, MiniLM, "
-            "bge-reranker, semantic search, order by, vss, bm25"
+        "vgi.keywords": json.dumps(
+            [
+                "rerank",
+                "reranker",
+                "cross-encoder",
+                "relevance",
+                "ranking",
+                "retrieval",
+                "RAG",
+                "second-stage",
+                "top-k",
+                "precision",
+                "fastembed",
+                "ONNX",
+                "MS MARCO",
+                "MiniLM",
+                "bge-reranker",
+                "semantic search",
+                "order by",
+                "vss",
+                "bm25",
+            ]
         ),
         "vgi.doc_llm": (
             "Score the relevance of a (query, document) pair with a local cross-encoder "
@@ -106,12 +125,22 @@ _RERANK_CATALOG = Catalog(
             comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision",
             tags={
                 "vgi.title": "Rerank - main schema",
-                "vgi.keywords": (
-                    "rerank, rerank_score, supported_models, rerank_version, "
-                    "cross-encoder, relevance, reranker, retrieval, RAG, top-k, "
-                    "order by, semantic search"
+                "vgi.keywords": json.dumps(
+                    [
+                        "rerank",
+                        "rerank_score",
+                        "supported_models",
+                        "rerank_version",
+                        "cross-encoder",
+                        "relevance",
+                        "reranker",
+                        "retrieval",
+                        "RAG",
+                        "top-k",
+                        "order by",
+                        "semantic search",
+                    ]
                 ),
-                "vgi.source_url": ("https://github.com/Query-farm/vgi-rerank/blob/main/rerank_worker.py"),
                 # VGI123 classifying tags use BARE keys (not vgi.-namespaced).
                 "domain": "information-retrieval",
                 "category": "reranking",
@@ -140,6 +169,82 @@ _RERANK_CATALOG = Catalog(
                     "SELECT rerank.main.rerank_version();"
                 ),
             },
+            # supported_models() takes no arguments and always returns the same
+            # rows, so also expose it as a regular table (backed by the function)
+            # -- consumers can then SELECT * FROM rerank.main.supported_models
+            # without parentheses (VGI311). inline_bind is safe because the
+            # function is @bind_fixed_schema (output is exactly its FIXED_SCHEMA).
+            tables=[
+                Table(
+                    name="supported_models",
+                    function=SupportedModelsFunction,
+                    inline_bind=True,
+                    comment="Every cross-encoder reranker model the worker can run, with the license of its weights.",
+                    primary_key=(("model",),),
+                    not_null=("model", "license"),
+                    tags={
+                        "vgi.title": "Supported Reranker Models",
+                        "vgi.keywords": json.dumps(
+                            [
+                                "supported_models",
+                                "models",
+                                "reranker",
+                                "cross-encoder",
+                                "license",
+                                "discovery",
+                                "available models",
+                                "catalog",
+                                "ms-marco",
+                                "bge-reranker",
+                                "list models",
+                            ]
+                        ),
+                        "domain": "information-retrieval",
+                        "category": "reranking",
+                        "topic": "model-discovery",
+                        "vgi.doc_llm": (
+                            "Discovery table listing every cross-encoder reranker model this worker can "
+                            "run, one row per model, with the SPDX-style license of its weights. Query it "
+                            "to learn which model names are valid as the optional third argument to "
+                            "rerank_score(query, document, model) and to confirm licensing before adopting "
+                            "a model. The `model` column is the name to pass to rerank_score; the `license` "
+                            "column is the weights' license (every advertised model is permissive / "
+                            "commercially usable). Identical rows to the supported_models() table function "
+                            "-- prefer SELECT * FROM rerank.main.supported_models (no parentheses)."
+                        ),
+                        "vgi.doc_md": (
+                            "# supported_models\n\n"
+                            "A discovery table of every cross-encoder reranker the worker can run -- one "
+                            "row per model. Backed by the `supported_models()` table function; query it as "
+                            "`SELECT * FROM rerank.main.supported_models`.\n\n"
+                            "## Columns\n\n"
+                            "| column | type | description |\n"
+                            "|---|---|---|\n"
+                            "| `model` | VARCHAR | Name to pass as the optional third argument to "
+                            "`rerank_score(query, document, model)` (primary key). |\n"
+                            "| `license` | VARCHAR | SPDX-style license of the model weights. |\n\n"
+                            "## Notes\n\n"
+                            "Every advertised model is permissive / commercially usable. Reading this "
+                            "table loads no model, so it is always cheap."
+                        ),
+                        "vgi.example_queries": json.dumps(
+                            [
+                                {
+                                    "description": "List every supported reranker model and its license.",
+                                    "sql": "SELECT * FROM rerank.main.supported_models ORDER BY model",
+                                },
+                                {
+                                    "description": "Look up the license of the default model.",
+                                    "sql": (
+                                        "SELECT license FROM rerank.main.supported_models "
+                                        "WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'"
+                                    ),
+                                },
+                            ]
+                        ),
+                    },
+                ),
+            ],
             functions=[*SCALAR_FUNCTIONS, *TABLE_FUNCTIONS],
         ),
     ],

@@ -34,6 +34,7 @@ score. Nothing here crashes on odd input.
 
 from __future__ import annotations
 
+import json
 from typing import Annotated
 
 import pyarrow as pa
@@ -42,8 +43,6 @@ from vgi.arguments import ConstParam
 from vgi.metadata import FunctionExample
 
 from . import models
-
-_SOURCE_URL = "https://github.com/Query-farm/vgi-rerank/blob/main/vgi_rerank/scalars.py"
 
 
 def _ex(sql: str, description: str) -> list[FunctionExample]:
@@ -89,11 +88,22 @@ class RerankScore(ScalarFunction):
         categories = ["rerank", "retrieval"]
         tags = {
             "vgi.title": "Cross-Encoder Rerank Score",
-            "vgi.keywords": (
-                "rerank, rerank_score, relevance, cross-encoder, score, ranking, "
-                "retrieval, RAG, order by, top-k, logit, semantic search"
+            "vgi.keywords": json.dumps(
+                [
+                    "rerank",
+                    "rerank_score",
+                    "relevance",
+                    "cross-encoder",
+                    "score",
+                    "ranking",
+                    "retrieval",
+                    "RAG",
+                    "order by",
+                    "top-k",
+                    "logit",
+                    "semantic search",
+                ]
             ),
-            "vgi.source_url": _SOURCE_URL,
             "vgi.doc_llm": (
                 "Per-row cross-encoder relevance scorer. `rerank_score(query, document)` "
                 "feeds the query and document through one transformer together (fastembed/"
@@ -166,11 +176,21 @@ class RerankScoreModel(ScalarFunction):
         categories = ["rerank", "retrieval"]
         tags = {
             "vgi.title": "Rerank Score With Explicit Model",
-            "vgi.keywords": (
-                "rerank, rerank_score, model, explicit model, cross-encoder, relevance, "
-                "ranking, retrieval, bge-reranker, ms-marco, choose model"
+            "vgi.keywords": json.dumps(
+                [
+                    "rerank",
+                    "rerank_score",
+                    "model",
+                    "explicit model",
+                    "cross-encoder",
+                    "relevance",
+                    "ranking",
+                    "retrieval",
+                    "bge-reranker",
+                    "ms-marco",
+                    "choose model",
+                ]
             ),
-            "vgi.source_url": _SOURCE_URL,
             "vgi.doc_llm": (
                 "Three-argument arity overload of `rerank_score` that scores a "
                 "`(query, document)` pair with an EXPLICIT reranker model instead of the "
@@ -231,11 +251,19 @@ class RerankVersion(ScalarFunction):
         categories = ["metadata"]
         tags = {
             "vgi.title": "Rerank Worker Version String",
-            "vgi.keywords": (
-                "version, rerank_version, identity, backend, fastembed, default model, "
-                "diagnostics, build info, metadata"
+            "vgi.keywords": json.dumps(
+                [
+                    "version",
+                    "rerank_version",
+                    "identity",
+                    "backend",
+                    "fastembed",
+                    "default model",
+                    "diagnostics",
+                    "build info",
+                    "metadata",
+                ]
             ),
-            "vgi.source_url": _SOURCE_URL,
             "vgi.doc_llm": (
                 "Return a single human-readable identity string describing this worker: its "
                 "vgi-rerank version, the fastembed backend version, and the default cross-"
