@@ -94,6 +94,7 @@ _RERANK_CATALOG = Catalog(
         ),
         "vgi.doc_md": (
             "# Cross-Encoder Reranking in SQL\n\n"
+            "![fastembed (Qdrant) logo](https://raw.githubusercontent.com/qdrant/fastembed/main/docs/assets/favicon.png)\n\n"
             "**Rerank retrieval results directly in DuckDB with a local cross-encoder reranker "
             "(fastembed / ONNX Runtime, no torch) -- the precision second stage that turns a "
             "good recall set into a great answer for RAG and semantic search.**\n\n"
