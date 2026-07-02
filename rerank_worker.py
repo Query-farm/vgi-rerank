@@ -50,6 +50,56 @@ from vgi_rerank import models
 from vgi_rerank.scalars import SCALAR_FUNCTIONS
 from vgi_rerank.tables import TABLE_FUNCTIONS, SupportedModelsFunction
 
+# VGI152/VGI920 fixed analyst-task suite for `vgi-lint simulate`. Only ``prompt``
+# is shown to the analyst; ``reference_sql`` is the grader-only canonical answer,
+# run in the SAME worker session as the analyst's answer. The discovery tasks have
+# fully deterministic references (the model registry is static and loads no model).
+# The reranking task pits a clearly-relevant passage against a clearly-irrelevant
+# one, so ``ORDER BY rerank_score(:q, doc) DESC LIMIT 1`` deterministically returns
+# the relevant passage regardless of the exact (platform-dependent) logit values.
+# ``ignore_column_names`` tolerates output aliasing; ``unordered`` the row order.
+_AGENT_TEST_TASKS = json.dumps(
+    [
+        {
+            "name": "list-supported-models",
+            "prompt": (
+                "Using this worker, list every cross-encoder reranker model it can run "
+                "together with the license of each model's weights."
+            ),
+            "reference_sql": "SELECT model, license FROM rerank.main.supported_models ORDER BY model",
+            "ignore_column_names": True,
+            "unordered": True,
+        },
+        {
+            "name": "default-model-license",
+            "prompt": (
+                "What is the license of the reranker model 'Xenova/ms-marco-MiniLM-L-6-v2' "
+                "according to this worker? Return a single value."
+            ),
+            "reference_sql": (
+                "SELECT license FROM rerank.main.supported_models WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'"
+            ),
+            "ignore_column_names": True,
+        },
+        {
+            # A raw cross-encoder logit is platform-dependent, so it cannot be
+            # reasoned/guessed -- the analyst MUST call rerank_score, and the
+            # grader runs the same reference in the same session so it self-matches.
+            "name": "rerank-score-value",
+            "prompt": (
+                "Using this worker, compute the cross-encoder relevance score for the search "
+                "query 'how do I reset my password' against the document "
+                "'Click the forgot password link to reset it.'. Return the numeric score."
+            ),
+            "reference_sql": (
+                "SELECT rerank.main.rerank_score('how do I reset my password', "
+                "'Click the forgot password link to reset it.')"
+            ),
+            "ignore_column_names": True,
+        },
+    ]
+)
+
 _RERANK_CATALOG = Catalog(
     name="rerank",
     default_schema="main",
@@ -149,6 +199,7 @@ _RERANK_CATALOG = Catalog(
         "vgi.license": "MIT",
         "vgi.support_contact": "https://github.com/Query-farm/vgi-rerank/issues",
         "vgi.support_policy_url": "https://github.com/Query-farm/vgi-rerank/blob/main/README.md",
+        "vgi.agent_test_tasks": _AGENT_TEST_TASKS,
     },
     schemas=[
         Schema(
@@ -176,6 +227,27 @@ _RERANK_CATALOG = Catalog(
                 "domain": "information-retrieval",
                 "category": "reranking",
                 "topic": "cross-encoder-relevance",
+                # VGI413 ordered category registry; each function/table carries a
+                # matching `vgi.category`. Drives navigation/listing/SEO.
+                "vgi.categories": json.dumps(
+                    [
+                        {
+                            "name": "reranking",
+                            "description": (
+                                "Score and reorder a top-K candidate set by (query, document) "
+                                "relevance with a local cross-encoder."
+                            ),
+                        },
+                        {
+                            "name": "model-discovery",
+                            "description": "List the reranker models the worker can run and their licenses.",
+                        },
+                        {
+                            "name": "diagnostics",
+                            "description": "Worker, backend, and default-model identity for health checks.",
+                        },
+                    ]
+                ),
                 "vgi.doc_llm": (
                     "Cross-encoder relevance scoring and reranker discovery: rerank_score "
                     "scores a (query, document) pair to a DOUBLE relevance logit for "
@@ -186,11 +258,23 @@ _RERANK_CATALOG = Catalog(
                 ),
                 "vgi.doc_md": (
                     "## main\n\n"
-                    "The single schema of the `rerank` catalog. It groups the per-row "
-                    "relevance scorer `rerank_score` (a scalar with an optional explicit-"
-                    "model arity overload), the `supported_models()` discovery table, and "
-                    "the `rerank_version()` identity helper -- everything needed to add "
-                    "second-stage cross-encoder reranking to a local RAG pipeline."
+                    "The single schema of the `rerank` catalog: local cross-encoder relevance "
+                    "scoring exposed as SQL over Apache Arrow. Everything runs on-device via "
+                    "fastembed / ONNX Runtime (no torch, no network at query time once a model "
+                    "is cached), so second-stage RAG reranking becomes ordinary SQL.\n\n"
+                    "**What you can do here**\n\n"
+                    "- Score a `(query, document)` pair to a relevance logit and reorder a "
+                    "candidate set with `ORDER BY rerank_score(:q, doc) DESC LIMIT k`.\n"
+                    "- Pick a specific reranker via the three-argument overload "
+                    "`rerank_score(query, document, model)`.\n"
+                    "- Discover the available models and their licenses, and read the worker's "
+                    "identity for health checks.\n\n"
+                    "**When to use it**\n\n"
+                    "Apply reranking as the precision second stage over a recall-produced top-K "
+                    "candidate set (from DuckDB VSS ANN or BM25) -- never over a whole corpus, "
+                    "since a cross-encoder scores every pair at query time and cannot be "
+                    "precomputed. See each object's own documentation for arguments, worked "
+                    "examples, and output columns."
                 ),
                 # VGI506 representative example queries for the schema.
                 "vgi.example_queries": (
@@ -233,6 +317,7 @@ _RERANK_CATALOG = Catalog(
                         "domain": "information-retrieval",
                         "category": "reranking",
                         "topic": "model-discovery",
+                        "vgi.category": "model-discovery",
                         "vgi.doc_llm": (
                             "Discovery table listing every cross-encoder reranker model this worker can "
                             "run, one row per model, with the SPDX-style license of its weights. Query it "
@@ -240,14 +325,17 @@ _RERANK_CATALOG = Catalog(
                             "rerank_score(query, document, model) and to confirm licensing before adopting "
                             "a model. The `model` column is the name to pass to rerank_score; the `license` "
                             "column is the weights' license (every advertised model is permissive / "
-                            "commercially usable). Identical rows to the supported_models() table function "
-                            "-- prefer SELECT * FROM rerank.main.supported_models (no parentheses)."
+                            "commercially usable). It returns identical rows to the supported_models() "
+                            "table function; prefer the parenthesis-free table form over the function call."
                         ),
                         "vgi.doc_md": (
                             "# supported_models\n\n"
                             "A discovery table of every cross-encoder reranker the worker can run -- one "
-                            "row per model. Backed by the `supported_models()` table function; query it as "
-                            "`SELECT * FROM rerank.main.supported_models`.\n\n"
+                            "row per model. Backed by the `supported_models()` table function; query it "
+                            "without parentheses:\n\n"
+                            "```sql\n"
+                            "SELECT * FROM rerank.main.supported_models;\n"
+                            "```\n\n"
                             "## Columns\n\n"
                             "| column | type | description |\n"
                             "|---|---|---|\n"

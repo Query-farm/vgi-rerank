@@ -14,3 +14,5 @@ models/
 .fastembed_cache/
 fastembed_cache/
 .cache/
+# vgi-lint local caches (agent-sim / doc-review) -- never commit.
+.vgi-*-cache.json

@@ -64,6 +64,7 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
         categories = ["rerank", "metadata"]
         tags = {
             "vgi.title": "Supported Reranker Models Catalog",
+            "vgi.category": "model-discovery",
             "vgi.keywords": json.dumps(
                 [
                     "supported_models",

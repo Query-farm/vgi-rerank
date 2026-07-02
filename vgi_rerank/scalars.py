@@ -88,6 +88,7 @@ class RerankScore(ScalarFunction):
         categories = ["rerank", "retrieval"]
         tags = {
             "vgi.title": "Cross-Encoder Rerank Score",
+            "vgi.category": "reranking",
             "vgi.keywords": json.dumps(
                 [
                     "rerank",
@@ -176,6 +177,7 @@ class RerankScoreModel(ScalarFunction):
         categories = ["rerank", "retrieval"]
         tags = {
             "vgi.title": "Rerank Score With Explicit Model",
+            "vgi.category": "reranking",
             "vgi.keywords": json.dumps(
                 [
                     "rerank",
@@ -251,6 +253,7 @@ class RerankVersion(ScalarFunction):
         categories = ["metadata"]
         tags = {
             "vgi.title": "Rerank Worker Version String",
+            "vgi.category": "diagnostics",
             "vgi.keywords": json.dumps(
                 [
                     "version",
