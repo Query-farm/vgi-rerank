@@ -103,22 +103,33 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
                 "Every advertised model is permissive / commercially usable. Calling this "
                 "function loads no model, so it is always cheap."
             ),
-            "vgi.result_columns_md": (
-                "| column | type | description |\n"
-                "|---|---|---|\n"
-                "| `model` | VARCHAR | Model name to pass as the optional third argument to "
-                "`rerank_score(query, document, model)`. |\n"
-                "| `license` | VARCHAR | SPDX-style license of the model weights (every "
-                "advertised model is permissive / commercially usable). |"
+            "vgi.result_columns_schema": json.dumps(
+                [
+                    {
+                        "name": "model",
+                        "type": "VARCHAR",
+                        "description": (
+                            "Model name to pass as the optional third argument to rerank_score(query, document, model)."
+                        ),
+                    },
+                    {
+                        "name": "license",
+                        "type": "VARCHAR",
+                        "description": (
+                            "SPDX-style license of the model weights (every advertised model "
+                            "is permissive / commercially usable)."
+                        ),
+                    },
+                ]
             ),
         }
         examples = [
             FunctionExample(
-                sql="SELECT * FROM rerank.supported_models() ORDER BY model",
+                sql="SELECT model, license FROM rerank.main.supported_models() ORDER BY model",
                 description="List the supported reranker models and their licenses",
             ),
             FunctionExample(
-                sql="SELECT license FROM rerank.supported_models() WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'",
+                sql="SELECT license FROM rerank.main.supported_models() WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'",
                 description="License of the default model",
             ),
         ]

@@ -149,7 +149,8 @@ class RerankScore(ScalarFunction):
             ),
         }
         examples = _ex(
-            "SELECT rerank.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.')",
+            "SELECT rerank.main.rerank_score('how do I reset my password', "
+            "'Click the forgot password link to reset it.')",
             "Score one query/document pair with the default model",
         )
 
@@ -220,7 +221,7 @@ class RerankScoreModel(ScalarFunction):
             ),
         }
         examples = _ex(
-            "SELECT rerank.rerank_score('reset password', "
+            "SELECT rerank.main.rerank_score('reset password', "
             "'Reset your password from the account settings page.', "
             "'Xenova/ms-marco-MiniLM-L-6-v2')",
             "Score with an explicitly chosen reranker model",
@@ -289,7 +290,7 @@ class RerankVersion(ScalarFunction):
             ),
         }
         examples = _ex(
-            "SELECT rerank.rerank_version()",
+            "SELECT rerank.main.rerank_version()",
             "Identify the rerank worker / default model",
         )
 

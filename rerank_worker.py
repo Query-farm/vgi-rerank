@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.8.5",
+#     "vgi-python[http]>=0.15.0",
 #     "fastembed>=0.5",
 # ]
 # ///
@@ -97,6 +97,21 @@ _AGENT_TEST_TASKS = json.dumps(
             ),
             "ignore_column_names": True,
         },
+        {
+            # Graded by check_sql, not reference_sql: rerank_version() embeds the
+            # live fastembed backend version, which differs by environment, so an
+            # exact-compare reference would be a latent flake. The check asserts the
+            # stable shape ("vgi-rerank <ver> (fastembed <ver>; default <model>)")
+            # as a plain BOOLEAN instead.
+            "name": "rerank-worker-version",
+            "prompt": (
+                "Using this worker, report its identity/version string -- the single line that "
+                "names the vgi-rerank worker together with its fastembed backend version and the "
+                "default reranker model. Return that one string."
+            ),
+            "check_sql": ("SELECT rerank.main.rerank_version() LIKE 'vgi-rerank %(fastembed %default %)'"),
+            "ignore_column_names": True,
+        },
     ]
 )
 
@@ -179,16 +194,13 @@ _RERANK_CATALOG = Catalog(
             "the license of its weights, and `rerank_version()` reports the worker, backend, and "
             "default-model identity. A NULL or empty query or document always yields a NULL score, "
             "so odd input never crashes a query.\n\n"
-            "## Example\n\n"
-            "```sql\n"
-            "INSTALL vgi FROM community; LOAD vgi;\n"
-            "ATTACH 'rerank' (TYPE vgi, LOCATION 'uv run rerank_worker.py');\n\n"
-            "-- Reorder a top-K candidate set (e.g. from VSS / BM25) by true relevance.\n"
-            "SELECT id, chunk\n"
-            "FROM candidates\n"
-            "ORDER BY rerank.rerank_score('how do I reset my password', chunk) DESC\n"
-            "LIMIT 10;\n"
-            "```\n\n"
+            "## Getting started\n\n"
+            "Install and load the `vgi` community extension, then `ATTACH` this worker as a "
+            "catalog (for example named `rerank`) pointed at `uv run rerank_worker.py`. Once "
+            "attached, order any recall-produced candidate set by "
+            "`rerank.main.rerank_score(:query, document) DESC` and keep the top *k* rows. "
+            "Ready-to-run SQL for every function lives in each object's own examples and in "
+            "the schema's example queries.\n\n"
             "## Learn more\n\n"
             "- fastembed source: <https://github.com/qdrant/fastembed>\n"
             "- fastembed documentation: <https://qdrant.github.io/fastembed/>\n"
@@ -331,11 +343,9 @@ _RERANK_CATALOG = Catalog(
                         "vgi.doc_md": (
                             "# supported_models\n\n"
                             "A discovery table of every cross-encoder reranker the worker can run -- one "
-                            "row per model. Backed by the `supported_models()` table function; query it "
-                            "without parentheses:\n\n"
-                            "```sql\n"
-                            "SELECT * FROM rerank.main.supported_models;\n"
-                            "```\n\n"
+                            "row per model. Backed by the `supported_models()` table function, it is "
+                            "queried without parentheses -- project the `model` and `license` columns "
+                            "and order by `model`; see the examples below for ready-to-run SQL.\n\n"
                             "## Columns\n\n"
                             "| column | type | description |\n"
                             "|---|---|---|\n"
@@ -350,7 +360,7 @@ _RERANK_CATALOG = Catalog(
                             [
                                 {
                                     "description": "List every supported reranker model and its license.",
-                                    "sql": "SELECT * FROM rerank.main.supported_models ORDER BY model",
+                                    "sql": "SELECT model, license FROM rerank.main.supported_models ORDER BY model",
                                 },
                                 {
                                     "description": "Look up the license of the default model.",
