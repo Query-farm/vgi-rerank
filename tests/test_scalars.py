@@ -2,9 +2,9 @@
 
 Split into two tiers:
 
-* **Pure logic** (no model): NULL/empty masking in ``rerank_score``, the model
-  registry (``resolve_model`` / ``model_license`` / unknown-model errors), and
-  ``rerank_version()``. These always run.
+* **Pure logic** (no model): NULL/empty masking in ``rerank_score`` and the model
+  registry (``resolve_model`` / ``model_license`` / unknown-model errors). These
+  always run.
 * **Model-backed** (``@needs_model``): the actual cross-encoder scores. Gated on
   the default fastembed model being loadable, so a bare/offline checkout skips
   them cleanly while a provisioned environment runs them.
@@ -22,7 +22,7 @@ import pytest
 
 from tests.harness import model_available
 from vgi_rerank import models
-from vgi_rerank.scalars import RerankScore, RerankScoreModel, RerankVersion
+from vgi_rerank.scalars import RerankScore, RerankScoreModel
 
 needs_model = pytest.mark.skipif(
     not model_available(), reason="fastembed default cross-encoder not available (offline / cold cache)"
@@ -65,16 +65,6 @@ class TestModelRegistry:
         rows = models.supported_models()
         assert rows == sorted(rows)
         assert all(lic in {"apache-2.0", "mit"} for _name, lic in rows)
-
-
-# --- rerank_version (no model) ----------------------------------------------
-
-
-class TestVersion:
-    def test_version_mentions_worker_and_default_model(self) -> None:
-        v = RerankVersion.compute().to_pylist()[0]
-        assert "vgi-rerank" in v
-        assert models.DEFAULT_MODEL in v
 
 
 # --- NULL/empty masking (no model needed for the NULL rows) -----------------

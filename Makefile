@@ -13,9 +13,12 @@
 # downloaded by fastembed on first use and cached (gitignored). `make models`
 # pre-warms it so the first SQL/unit run isn't paying the download inline.
 
-# Worker stdio command (overridable). The PEP-723 header in rerank_worker.py pins
-# fastembed, so `uv run` gives the worker its dependency.
-WORKER_STDIO   ?= uv run --python 3.13 rerank_worker.py
+# Worker stdio command (overridable). Run from the synced project venv (deps
+# resolved from the lockfile) rather than `uv run <script>`: plain `.venv/bin/python`
+# ignores the PEP-723 header, reuses the already-warmed model cache, and attaches
+# with the SAME vgi-python the tests/lint use (an `uv run` script env can cache a
+# stale SDK). This mirrors the CI integration job's WORKER_CMD.
+WORKER_STDIO   ?= .venv/bin/python rerank_worker.py
 
 # haybarn-unittest: the DuckDB sqllogictest runner (uv tool install haybarn-unittest).
 HAYBARN        ?= haybarn-unittest

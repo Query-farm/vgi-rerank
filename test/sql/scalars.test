@@ -91,12 +91,5 @@ SELECT rerank.rerank_score('indexing', chunk) IS NULL FROM candidates WHERE id =
 ----
 true
 
-# ---- rerank_version ---------------------------------------------------------
-
-query I
-SELECT rerank.rerank_version() LIKE 'vgi-rerank%';
-----
-true
-
 statement ok
 DETACH rerank;

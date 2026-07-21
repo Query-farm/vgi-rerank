@@ -95,7 +95,10 @@ Other supported models (pass as the third argument to `rerank_score`, or query
 |---|---|---|
 | `rerank_score(query, document)` | `(VARCHAR, VARCHAR) → DOUBLE` | cross-encoder relevance score, default model |
 | `rerank_score(query, document, model)` | `(VARCHAR, VARCHAR, VARCHAR) → DOUBLE` | explicit model (arity overload) |
-| `rerank_version()` | `→ VARCHAR` | worker + backend + default-model identity |
+
+The worker version is published on the catalog discovery record
+(`implementation_version`, readable via `vgi_catalogs()`) rather than as a scalar
+function.
 
 ### Table function
 

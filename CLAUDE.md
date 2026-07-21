@@ -19,7 +19,7 @@ rerank_worker.py       repo-root stdio entry; PEP 723 inline deps; warms the mod
 serve.py               HTTP entry shim
 vgi_rerank/
   models.py            loaded-once-and-cached TextCrossEncoder lifecycle + warm_up(); score_pairs(); supported-model registry
-  scalars.py           rerank_score (+ explicit-model arity overload), rerank_version
+  scalars.py           rerank_score (+ explicit-model arity overload)
   tables.py            supported_models() discovery table function
   schema_utils.py      pa.Field comment helper
 tests/                 pytest: scalars / tables / Client integration (model-gated tests self-skip)
@@ -38,6 +38,11 @@ Makefile               test / test-unit / test-sql / models / lint / typecheck
   an explicit `arrow_type`; we set it for clarity and to match the sibling.)
 - **`supported_models()` is a table function** (rows out), so it lives in
   `tables.py` with the `@init_single_worker` / `@bind_fixed_schema` pattern.
+- **No `version()` scalar.** The worker version is advertised on the catalog
+  discovery record (`CatalogInfo.implementation_version`, read via
+  `vgi_catalogs()`) through `_RerankCatalogInterface.catalogs()` in
+  `rerank_worker.py` — a parameterless `*_version()` scalar is a lint
+  anti-pattern (VGI328) and can drift from the running build.
 - **NULL/empty → NULL.** `score_pairs` masks any pair with a NULL or
   whitespace-only query *or* document to a NULL score *before* calling the model,
   and splices NULLs back by index — so the model is only ever handed real text,
@@ -69,8 +74,7 @@ Makefile               test / test-unit / test-sql / models / lint / typecheck
    doc) DESC` ranks the relevant row first.
 6. **Model-gated tests.** Unit/integration tests that actually score are guarded by
    `@needs_model` (default model loadable) so a bare/offline checkout stays green;
-   the pure-logic tests (model registry, NULL masking, `rerank_version`) always
-   run.
+   the pure-logic tests (model registry, NULL masking) always run.
 7. **Top-K only — by design.** A cross-encoder scores every pair at query time; it
    cannot be cached like an embedding. This worker is *only* meant to rerank a
    recall-produced top-K candidate set, never a whole corpus. That is the

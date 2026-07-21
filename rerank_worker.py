@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.15.0",
+#     "vgi-python[http]>=0.16.0",
 #     "fastembed>=0.5",
 # ]
 # ///
@@ -44,9 +44,9 @@ import json
 from typing import Any
 
 from vgi import Worker
-from vgi.catalog import Catalog, Schema, Table
+from vgi.catalog import Catalog, CatalogInfo, ReadOnlyCatalogInterface, Schema, Table
 
-from vgi_rerank import models
+from vgi_rerank import __version__, models
 from vgi_rerank.scalars import SCALAR_FUNCTIONS
 from vgi_rerank.tables import TABLE_FUNCTIONS, SupportedModelsFunction
 
@@ -97,21 +97,6 @@ _AGENT_TEST_TASKS = json.dumps(
             ),
             "ignore_column_names": True,
         },
-        {
-            # Graded by check_sql, not reference_sql: rerank_version() embeds the
-            # live fastembed backend version, which differs by environment, so an
-            # exact-compare reference would be a latent flake. The check asserts the
-            # stable shape ("vgi-rerank <ver> (fastembed <ver>; default <model>)")
-            # as a plain BOOLEAN instead.
-            "name": "rerank-worker-version",
-            "prompt": (
-                "Using this worker, report its identity/version string -- the single line that "
-                "names the vgi-rerank worker together with its fastembed backend version and the "
-                "default reranker model. Return that one string."
-            ),
-            "check_sql": ("SELECT rerank.main.rerank_version() LIKE 'vgi-rerank %(fastembed %default %)'"),
-            "ignore_column_names": True,
-        },
     ]
 )
 
@@ -148,11 +133,11 @@ _RERANK_CATALOG = Catalog(
         "vgi.doc_llm": (
             "Score the relevance of a (query, document) pair with a local cross-encoder "
             "reranker (fastembed/ONNX, no torch) and reorder a recall-produced top-K "
-            "candidate set. rerank_score(query, document[, model]) returns a DOUBLE "
+            "candidate set. rerank_score(query, document[, model]) returns a `DOUBLE` "
             "relevance logit (higher = more relevant, meaningful only relative to other "
             "documents for the SAME query); drop it into ORDER BY rerank_score(:q, doc) "
-            "DESC LIMIT k. supported_models() lists the available reranker models and "
-            "rerank_version() reports worker/backend/default-model identity. This is the "
+            "DESC LIMIT k. supported_models() lists the available reranker models with the "
+            "license of each. This is the "
             "precision SECOND stage of a local RAG stack: run it only over the top-K "
             "candidates that recall (DuckDB VSS / BM25) already produced, never over a "
             "whole corpus."
@@ -191,8 +176,7 @@ _RERANK_CATALOG = Catalog(
             "`rerank_score(query, document, model)` lets you pick a specific reranker such as "
             "`BAAI/bge-reranker-base`. The `supported_models()` table function (also available as "
             "the `supported_models` table) lists every reranker the worker can run together with "
-            "the license of its weights, and `rerank_version()` reports the worker, backend, and "
-            "default-model identity. A NULL or empty query or document always yields a NULL score, "
+            "the license of its weights. A NULL or empty query or document always yields a NULL score, "
             "so odd input never crashes a query.\n\n"
             "## Getting started\n\n"
             "Install and load the `vgi` community extension, then `ATTACH` this worker as a "
@@ -224,7 +208,6 @@ _RERANK_CATALOG = Catalog(
                         "rerank",
                         "rerank_score",
                         "supported_models",
-                        "rerank_version",
                         "cross-encoder",
                         "relevance",
                         "reranker",
@@ -254,19 +237,14 @@ _RERANK_CATALOG = Catalog(
                             "name": "model-discovery",
                             "description": "List the reranker models the worker can run and their licenses.",
                         },
-                        {
-                            "name": "diagnostics",
-                            "description": "Worker, backend, and default-model identity for health checks.",
-                        },
                     ]
                 ),
                 "vgi.doc_llm": (
                     "Cross-encoder relevance scoring and reranker discovery: rerank_score "
-                    "scores a (query, document) pair to a DOUBLE relevance logit for "
-                    "ORDER BY ... DESC LIMIT k reranking of a top-K candidate set, "
+                    "scores a (query, document) pair to a `DOUBLE` relevance logit for "
+                    "ORDER BY ... DESC LIMIT k reranking of a top-K candidate set, and "
                     "supported_models lists the available reranker models with their "
-                    "licenses, and rerank_version reports the worker/backend/default-model "
-                    "identity."
+                    "licenses."
                 ),
                 "vgi.doc_md": (
                     "## main\n\n"
@@ -279,8 +257,7 @@ _RERANK_CATALOG = Catalog(
                     "candidate set with `ORDER BY rerank_score(:q, doc) DESC LIMIT k`.\n"
                     "- Pick a specific reranker via the three-argument overload "
                     "`rerank_score(query, document, model)`.\n"
-                    "- Discover the available models and their licenses, and read the worker's "
-                    "identity for health checks.\n\n"
+                    "- Discover the available reranker models and their licenses.\n\n"
                     "**When to use it**\n\n"
                     "Apply reranking as the precision second stage over a recall-produced top-K "
                     "candidate set (from DuckDB VSS ANN or BM25) -- never over a whole corpus, "
@@ -288,12 +265,21 @@ _RERANK_CATALOG = Catalog(
                     "precomputed. See each object's own documentation for arguments, worked "
                     "examples, and output columns."
                 ),
-                # VGI506 representative example queries for the schema.
-                "vgi.example_queries": (
-                    "SELECT rerank.main.rerank_score('how do I reset my password', "
-                    "'Click the forgot password link to reset it.');\n"
-                    "SELECT * FROM rerank.main.supported_models() ORDER BY model;\n"
-                    "SELECT rerank.main.rerank_version();"
+                # VGI506/VGI515 representative described example queries for the schema.
+                "vgi.example_queries": json.dumps(
+                    [
+                        {
+                            "description": "Score a (query, document) pair with the default model.",
+                            "sql": (
+                                "SELECT rerank.main.rerank_score('how do I reset my password', "
+                                "'Click the forgot password link to reset it.')"
+                            ),
+                        },
+                        {
+                            "description": "List the available reranker models and their licenses.",
+                            "sql": "SELECT model, license FROM rerank.main.supported_models() ORDER BY model",
+                        },
+                    ]
                 ),
             },
             # supported_models() takes no arguments and always returns the same
@@ -380,10 +366,37 @@ _RERANK_CATALOG = Catalog(
 )
 
 
+class _RerankCatalogInterface(ReadOnlyCatalogInterface):
+    """Read-only ``rerank`` catalog that advertises its implementation version.
+
+    The worker version is surfaced through the ``catalog_catalogs()`` discovery
+    record (``CatalogInfo.implementation_version``) rather than a scalar
+    ``version()`` function: an agent reads it from ``vgi_catalogs()`` without
+    spending a query, and it can never drift from the running build. This
+    replaces the old ``rerank_version()`` scalar.
+    """
+
+    catalog = _RERANK_CATALOG
+    catalog_name = _RERANK_CATALOG.name
+
+    def catalogs(self) -> list[CatalogInfo]:
+        """Return the discovery record, stamped with the worker version."""
+        return [
+            CatalogInfo(
+                name=self._effective_catalog_name,
+                implementation_version=__version__,
+                data_version_spec=None,
+                attach_option_specs=[spec.serialize() for spec in self.attach_option_specs],
+                source_url=self.catalog.source_url if self.catalog is not None else None,
+            )
+        ]
+
+
 class RerankWorker(Worker):
     """Worker process hosting the ``rerank`` catalog."""
 
     catalog = _RERANK_CATALOG
+    catalog_interface = _RerankCatalogInterface
 
     def run(self, otel_config: Any = None) -> None:
         """Warm the default model, then serve.

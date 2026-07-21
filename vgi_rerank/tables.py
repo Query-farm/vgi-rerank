@@ -103,6 +103,21 @@ class SupportedModelsFunction(TableFunctionGenerator[_NoArgs]):
                 "Every advertised model is permissive / commercially usable. Calling this "
                 "function loads no model, so it is always cheap."
             ),
+            "vgi.example_queries": json.dumps(
+                [
+                    {
+                        "description": "List the supported reranker models and their licenses.",
+                        "sql": "SELECT model, license FROM rerank.main.supported_models() ORDER BY model",
+                    },
+                    {
+                        "description": "Look up the license of the default model.",
+                        "sql": (
+                            "SELECT license FROM rerank.main.supported_models() "
+                            "WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'"
+                        ),
+                    },
+                ]
+            ),
             "vgi.result_columns_schema": json.dumps(
                 [
                     {

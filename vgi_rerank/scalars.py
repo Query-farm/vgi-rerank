@@ -49,6 +49,34 @@ def _ex(sql: str, description: str) -> list[FunctionExample]:
     return [FunctionExample(sql=sql, description=description)]
 
 
+# Described example queries for `rerank_score`, aggregated across BOTH arity
+# overloads (2-arg default-model and 3-arg explicit-model) under the one function
+# name. The native ``Meta.examples`` carrier drops per-example descriptions, so we
+# also publish them here as a `vgi.example_queries` tag; each overload carries this
+# byte-identical list so the linter's per-name example aggregation sees a
+# description for every example (VGI515). The SQL strings match each overload's
+# ``examples`` exactly so the two carriers dedupe to one described entry per query.
+_RERANK_SCORE_EXAMPLE_QUERIES = json.dumps(
+    [
+        {
+            "description": "Score one (query, document) pair with the default model.",
+            "sql": (
+                "SELECT rerank.main.rerank_score('how do I reset my password', "
+                "'Click the forgot password link to reset it.')"
+            ),
+        },
+        {
+            "description": "Score a pair with an explicitly chosen reranker model.",
+            "sql": (
+                "SELECT rerank.main.rerank_score('reset password', "
+                "'Reset your password from the account settings page.', "
+                "'Xenova/ms-marco-MiniLM-L-6-v2')"
+            ),
+        },
+    ]
+)
+
+
 def _score_array(
     query: pa.StringArray,
     document: pa.StringArray,
@@ -108,7 +136,7 @@ class RerankScore(ScalarFunction):
             "vgi.doc_llm": (
                 "Per-row cross-encoder relevance scorer. `rerank_score(query, document)` "
                 "feeds the query and document through one transformer together (fastembed/"
-                f"ONNX, default model {models.DEFAULT_MODEL}) and returns a DOUBLE relevance "
+                f"ONNX, default model {models.DEFAULT_MODEL}) and returns a `DOUBLE` relevance "
                 "logit: higher = more relevant. The value is meaningful only RELATIVE to "
                 "other documents scored for the SAME query (it is not normalized and may be "
                 "negative), so use it in `ORDER BY rerank_score(:q, doc) DESC LIMIT k` over a "
@@ -147,6 +175,7 @@ class RerankScore(ScalarFunction):
                 "t(doc) ORDER BY rerank.main.rerank_score('how do I reset my password', doc) "
                 'DESC"}]'
             ),
+            "vgi.example_queries": _RERANK_SCORE_EXAMPLE_QUERIES,
         }
         examples = _ex(
             "SELECT rerank.main.rerank_score('how do I reset my password', "
@@ -197,7 +226,7 @@ class RerankScoreModel(ScalarFunction):
             "vgi.doc_llm": (
                 "Three-argument arity overload of `rerank_score` that scores a "
                 "`(query, document)` pair with an EXPLICIT reranker model instead of the "
-                "default. `rerank_score(query, document, model)` returns the same DOUBLE "
+                "default. `rerank_score(query, document, model)` returns the same `DOUBLE` "
                 "relevance logit as the two-argument form (higher = more relevant, relative "
                 "to the same query) but lets you pick any model returned by "
                 "`supported_models()` -- e.g. a larger/heavier model for higher quality. "
@@ -219,6 +248,7 @@ class RerankScoreModel(ScalarFunction):
                 "- Scalars are positional; this is an arity overload, not a named arg.\n"
                 "- NULL/empty query or document -> NULL score."
             ),
+            "vgi.example_queries": _RERANK_SCORE_EXAMPLE_QUERIES,
         }
         examples = _ex(
             "SELECT rerank.main.rerank_score('reset password', "
@@ -238,85 +268,7 @@ class RerankScoreModel(ScalarFunction):
         return _score_array(query, document, model=model or None)
 
 
-# ===========================================================================
-# rerank_version() -- metadata helper
-# ===========================================================================
-
-
-class RerankVersion(ScalarFunction):
-    """``rerank_version()`` -- worker + backend + default-model identity string."""
-
-    class Meta:
-        """Function metadata."""
-
-        name = "rerank_version"
-        description = "Version string: worker version, fastembed backend, and default cross-encoder model"
-        categories = ["metadata"]
-        tags = {
-            "vgi.title": "Rerank Worker Version String",
-            "vgi.category": "diagnostics",
-            "vgi.keywords": json.dumps(
-                [
-                    "version",
-                    "rerank_version",
-                    "identity",
-                    "backend",
-                    "fastembed",
-                    "default model",
-                    "diagnostics",
-                    "build info",
-                    "metadata",
-                ]
-            ),
-            "vgi.doc_llm": (
-                "Return a single human-readable identity string describing this worker: its "
-                "vgi-rerank version, the fastembed backend version, and the default cross-"
-                "encoder model name -- e.g. "
-                "`vgi-rerank 0.1.0 (fastembed 0.5.1; default Xenova/ms-marco-MiniLM-L-6-v2)`. "
-                "Takes no arguments and runs without loading any model, so it is the safest "
-                "call for health checks, debugging, and confirming which reranker the worker "
-                "defaults to before issuing scoring queries."
-            ),
-            "vgi.doc_md": (
-                "# rerank_version()\n\n"
-                "A worker/backend/default-model identity string for diagnostics and health "
-                "checks.\n\n"
-                "## Returns\n\n"
-                "`VARCHAR` -- e.g. "
-                "`vgi-rerank 0.1.0 (fastembed 0.5.1; default Xenova/ms-marco-MiniLM-L-6-v2)`.\n\n"
-                "## Notes\n\n"
-                "Takes no arguments and never loads a model, so it is cheap and always "
-                "available -- ideal as a liveness probe."
-            ),
-        }
-        examples = _ex(
-            "SELECT rerank.main.rerank_version()",
-            "Identify the rerank worker / default model",
-        )
-
-    @classmethod
-    def compute(
-        cls,
-    ) -> Annotated[pa.StringArray, Returns(arrow_type=pa.string())]:
-        """Return the worker/backend/default-model identity string."""
-        return pa.array([_version_string()], type=pa.string())
-
-
-def _version_string() -> str:
-    """Build the rerank_version() string (worker + fastembed backend + default model)."""
-    from . import __version__
-
-    try:
-        from importlib.metadata import version as _pkg_version
-
-        backend = f"fastembed {_pkg_version('fastembed')}"
-    except Exception:  # noqa: BLE001 - version lookup is best-effort
-        backend = "fastembed"
-    return f"vgi-rerank {__version__} ({backend}; default {models.DEFAULT_MODEL})"
-
-
 SCALAR_FUNCTIONS: list[type] = [
     RerankScore,
     RerankScoreModel,
-    RerankVersion,
 ]
