@@ -47,6 +47,17 @@ dev = [
 http = [
     "vgi-python[http]>=0.16.0",
 ]
+# HTTP-serving extra — installed by the Docker image (`pip install '.[serve]'`).
+# Alias of `http`: pulls in vgi-python's HTTP transport (waitress) so the
+# container can serve `--http` (/health + VGI RPC).
+serve = [
+    "vgi-python[http]>=0.16.0",
+]
+
+[project.scripts]
+# Console entrypoint the Docker image's stdio transport execs, and a stable
+# `ATTACH ... LOCATION 'vgi-rerank-worker'` target once the wheel is installed.
+vgi-rerank-worker = "vgi_rerank.worker:main"
 
 [project.urls]
 Homepage = "https://query.farm"
