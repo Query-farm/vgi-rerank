@@ -43,9 +43,10 @@ from vgi_rerank import __version__, models
 from vgi_rerank.scalars import SCALAR_FUNCTIONS
 from vgi_rerank.tables import TABLE_FUNCTIONS, SupportedModelsFunction
 
-# VGI152/VGI920 fixed analyst-task suite for `vgi-lint simulate`. Only ``prompt``
-# is shown to the analyst; ``reference_sql`` is the grader-only canonical answer,
-# run in the SAME worker session as the analyst's answer. The discovery tasks have
+# VGI152/VGI920 fixed analyst-task suite for `vgi-lint simulate`. Only ``name`` and
+# ``prompt`` are published here (VGI416); the grader-only canonical answers
+# (``reference_sql``, grading options) live in vgi-agent-tests.yaml at the repo
+# root and run in the SAME worker session as the analyst's answer. The discovery tasks have
 # fully deterministic references (the model registry is static and loads no model).
 # The reranking task pits a clearly-relevant passage against a clearly-irrelevant
 # one, so ``ORDER BY rerank_score(:q, doc) DESC LIMIT 1`` deterministically returns
@@ -59,9 +60,6 @@ _AGENT_TEST_TASKS = json.dumps(
                 "Using this worker, list every cross-encoder reranker model it can run "
                 "together with the license of each model's weights."
             ),
-            "reference_sql": "SELECT model, license FROM rerank.main.supported_models ORDER BY model",
-            "ignore_column_names": True,
-            "unordered": True,
         },
         {
             "name": "default-model-license",
@@ -69,10 +67,6 @@ _AGENT_TEST_TASKS = json.dumps(
                 "What is the license of the reranker model 'Xenova/ms-marco-MiniLM-L-6-v2' "
                 "according to this worker? Return a single value."
             ),
-            "reference_sql": (
-                "SELECT license FROM rerank.main.supported_models WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'"
-            ),
-            "ignore_column_names": True,
         },
         {
             # A raw cross-encoder logit is platform-dependent, so it cannot be
@@ -84,11 +78,6 @@ _AGENT_TEST_TASKS = json.dumps(
                 "query 'how do I reset my password' against the document "
                 "'Click the forgot password link to reset it.'. Return the numeric score."
             ),
-            "reference_sql": (
-                "SELECT rerank.main.rerank_score('how do I reset my password', "
-                "'Click the forgot password link to reset it.')"
-            ),
-            "ignore_column_names": True,
         },
     ]
 )
@@ -192,7 +181,7 @@ _RERANK_CATALOG = Catalog(
     },
     schemas=[
         Schema(
-            name="main",
+            path=["main"],
             comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision",
             tags={
                 "vgi.title": "Rerank - main schema",

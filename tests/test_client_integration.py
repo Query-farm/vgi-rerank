@@ -49,6 +49,7 @@ def test_rerank_score_end_to_end() -> None:
         results = list(
             client.scalar_function(
                 function_name="rerank_score",
+                schema_path=["main"],
                 input=iter([batch]),
                 arguments=Arguments(positional=[]),
             )
@@ -72,6 +73,7 @@ def test_rerank_score_with_explicit_model_overload_end_to_end() -> None:
         results = list(
             client.scalar_function(
                 function_name="rerank_score",
+                schema_path=["main"],
                 input=iter([batch]),
                 arguments=Arguments(positional=[pa.scalar("Xenova/ms-marco-MiniLM-L-6-v2")]),
             )
