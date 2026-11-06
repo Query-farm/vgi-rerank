@@ -37,7 +37,14 @@ import json
 from typing import Any
 
 from vgi import Worker
-from vgi.catalog import Catalog, CatalogInfo, ReadOnlyCatalogInterface, Schema, Table
+from vgi.catalog import (
+    Catalog,
+    CatalogInfo,
+    ReadOnlyCatalogInterface,
+    Schema,
+    Table,
+    constraint_record,
+)
 
 from vgi_rerank import __version__, models
 from vgi_rerank.scalars import SCALAR_FUNCTIONS
@@ -275,8 +282,29 @@ _RERANK_CATALOG = Catalog(
                     function=SupportedModelsFunction,
                     inline_bind=True,
                     comment="Every cross-encoder reranker model the worker can run, with the license of its weights.",
-                    primary_key=(("model",),),
-                    not_null=("model", "license"),
+                    # VGI protocol 3 canonical constraint records (DuckDB reads only
+                    # ENFORCED + ALL_ROWS). The PK already makes `model` NOT NULL;
+                    # every model row also carries a license.
+                    constraints=(
+                        constraint_record(
+                            ["main"],
+                            "supported_models",
+                            "pk",
+                            "PRIMARY_KEY",
+                            [["model"]],
+                            enforcement="ENFORCED",
+                            validation="ALL_ROWS",
+                        ),
+                        constraint_record(
+                            ["main"],
+                            "supported_models",
+                            "license_not_null",
+                            "NOT_NULL",
+                            [["license"]],
+                            enforcement="ENFORCED",
+                            validation="ALL_ROWS",
+                        ),
+                    ),
                     tags={
                         "vgi.title": "Supported Reranker Models",
                         "vgi.keywords": json.dumps(

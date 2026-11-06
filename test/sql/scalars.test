@@ -14,7 +14,7 @@ statement ok
 LOAD vgi;
 
 statement ok
-ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION '${VGI_RERANK_WORKER}');
+ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION '{VGI_RERANK_WORKER}');
 
 # ---- rerank_score(query, document): a DOUBLE relevance score ----------------
 

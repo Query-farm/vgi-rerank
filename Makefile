@@ -20,7 +20,7 @@
 # stale SDK). This mirrors the CI integration job's WORKER_CMD.
 WORKER_STDIO   ?= .venv/bin/python rerank_worker.py
 
-# haybarn-unittest: the DuckDB sqllogictest runner (uv tool install 'haybarn-unittest<2').
+# haybarn-unittest: the DuckDB sqllogictest runner (uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1').
 HAYBARN        ?= haybarn-unittest
 TEST_DIR        = .
 TEST_PATTERN    = test/sql/*
@@ -39,11 +39,11 @@ pytest:
 test-sql:
 	@command -v $(HAYBARN) >/dev/null 2>&1 || { \
 		echo "ERROR: $(HAYBARN) not found. Install it with:" >&2; \
-		echo "  uv tool install 'haybarn-unittest<2'" >&2; \
+		echo "  uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'" >&2; \
 		echo "  (then ensure ~/.local/bin is on PATH)" >&2; \
 		exit 1; \
 	}
-	VGI_RERANK_WORKER="$(WORKER_STDIO)" $(HAYBARN) --test-dir "$(TEST_DIR)" "$(TEST_PATTERN)"
+	VGI_RERANK_WORKER="$(WORKER_STDIO)" $(HAYBARN) --keep-home --test-dir "$(TEST_DIR)" "$(TEST_PATTERN)"
 
 # Pre-warm the fastembed cache by downloading the default ONNX model once.
 models:
