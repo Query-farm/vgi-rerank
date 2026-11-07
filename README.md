@@ -26,7 +26,7 @@ RAG retrieval stack —
 
 ```sql
 INSTALL vgi FROM community; LOAD vgi;
-ATTACH 'rerank' (TYPE vgi, LOCATION 'uv run rerank_worker.py');
+ATTACH 'rerank' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.2.0 vgi-rerank-worker');
 
 -- Score one query/document pair (higher = more relevant).
 SELECT rerank.rerank_score('how do I reset my password',
@@ -41,6 +41,41 @@ LIMIT 10;
 -- What models are available?
 SELECT * FROM rerank.supported_models();
 ```
+
+## Quick start
+
+The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from a tagged release on GitHub. `uvx` builds an isolated environment on the first ATTACH and reuses it afterwards:
+
+```sql
+INSTALL vgi FROM community;
+LOAD vgi;
+
+ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.2.0 vgi-rerank-worker');
+
+-- Score a (query, document) pair with the default model.
+SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.');
+
+-- List the available reranker models and their licenses.
+SELECT model, license FROM rerank.main.supported_models() ORDER BY model;
+```
+
+Change `@v0.2.0` to move to a newer release.
+
+The default model (~80 MB) downloads on first use and is cached on disk; see [The model](#the-model) for the cache location and other models.
+
+### Other ways to run it
+
+- **Docker** (the image bundles the worker and its dependencies):
+
+  ```sql
+  ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-rerank:0.2.0');
+  ```
+
+- **From a local checkout** (`git clone https://github.com/Query-farm/vgi-rerank`), point `LOCATION` at `uv run --project /path/to/vgi-rerank vgi-rerank-worker`.
+
+### Build from source
+
+To build and test the worker yourself from a checkout, see [Development](#development).
 
 ## How a reranker differs from an embedder (and why it's top-K only)
 
