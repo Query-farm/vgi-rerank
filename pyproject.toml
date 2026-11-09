@@ -1,6 +1,6 @@
 [project]
 name = "vgi-rerank"
-version = "0.2.0"
+version = "0.3.0"
 description = "Local cross-encoder reranking (fastembed/ONNX) as VGI DuckDB SQL functions for second-stage RAG precision"
 readme = "README.md"
 requires-python = ">=3.13"
