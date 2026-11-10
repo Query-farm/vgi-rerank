@@ -95,7 +95,11 @@ _RERANK_CATALOG = Catalog(
     comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision.",
     source_url="https://github.com/Query-farm/vgi-rerank",
     tags={
-        "vgi.title": "Local Cross-Encoder Reranking",
+        "vgi.title": "Cross-Encoder Reranking",
+        "vgi.subtitle": (
+            "Score and reorder retrieved passages against a query with local "
+            "cross-encoder models, for sharper RAG results."
+        ),
         "vgi.keywords": json.dumps(
             [
                 "rerank",
@@ -191,7 +195,7 @@ _RERANK_CATALOG = Catalog(
             path=["main"],
             comment="Local cross-encoder reranking (fastembed/ONNX) for second-stage RAG precision",
             tags={
-                "vgi.title": "Rerank - main schema",
+                "vgi.title": "Reranking Functions",
                 "vgi.keywords": json.dumps(
                     [
                         "rerank",
