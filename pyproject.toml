@@ -1,6 +1,6 @@
 [project]
 name = "vgi-rerank"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local cross-encoder reranking (fastembed/ONNX) as VGI DuckDB SQL functions for second-stage RAG precision"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -29,7 +29,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "vgi-python>=0.50.0",
+    "vgi-python>=0.51.0",
     "fastembed>=0.5",
     "pyarrow",
 ]
@@ -46,13 +46,13 @@ dev = [
 # addition to stdio/AF_UNIX. That path needs vgi-python's `http` extra
 # (waitress). CI's http transport leg installs this via `uv sync --extra http`.
 http = [
-    "vgi-python[http]>=0.50.0",
+    "vgi-python[http]>=0.51.0",
 ]
 # HTTP-serving extra — installed by the Docker image (`pip install '.[serve]'`).
 # Alias of `http`: pulls in vgi-python's HTTP transport (waitress) so the
 # container can serve `--http` (/health + VGI RPC).
 serve = [
-    "vgi-python[http]>=0.50.0",
+    "vgi-python[http]>=0.51.0",
 ]
 
 [project.scripts]

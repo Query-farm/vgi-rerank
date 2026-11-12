@@ -26,7 +26,7 @@ RAG retrieval stack —
 
 ```sql
 INSTALL vgi FROM community; LOAD vgi;
-ATTACH 'rerank' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.3.0 vgi-rerank-worker');
+ATTACH 'rerank' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.4.0 vgi-rerank-worker');
 
 -- Score one query/document pair (higher = more relevant).
 SELECT rerank.rerank_score('how do I reset my password',
@@ -50,7 +50,7 @@ The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.3.0 vgi-rerank-worker');
+ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.4.0 vgi-rerank-worker');
 
 -- Score a (query, document) pair with the default model.
 SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.');
@@ -59,7 +59,7 @@ SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot 
 SELECT model, license FROM rerank.main.supported_models() ORDER BY model;
 ```
 
-Change `@v0.3.0` to move to a newer release.
+Change `@v0.4.0` to move to a newer release.
 
 The default model (~80 MB) downloads on first use and is cached on disk; see [The model](#the-model) for the cache location and other models.
 
@@ -68,7 +68,7 @@ The default model (~80 MB) downloads on first use and is cached on disk; see [Th
 - **Docker** (the image bundles the worker and its dependencies):
 
   ```sql
-  ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-rerank:0.3.0');
+  ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-rerank:0.4.0');
   ```
 
 - **From a local checkout** (`git clone https://github.com/Query-farm/vgi-rerank`), point `LOCATION` at `uv run --project /path/to/vgi-rerank vgi-rerank-worker`.
