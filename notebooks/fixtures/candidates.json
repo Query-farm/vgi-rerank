@@ -1,0 +1,58 @@
+[
+  {
+    "id": "A",
+    "title": "Password policy",
+    "body": "Password requirements: use a long unique password and keep it private.",
+    "fixture_role": "related",
+    "recall_rank": 1
+  },
+  {
+    "id": "B",
+    "title": "Change while signed in",
+    "body": "To change a known password, sign in and open Account Settings, then Security.",
+    "fixture_role": "related",
+    "recall_rank": 2
+  },
+  {
+    "id": "C",
+    "title": "Billing page",
+    "body": "Invoices and payment methods are available from the Billing page.",
+    "fixture_role": "distractor",
+    "recall_rank": 3
+  },
+  {
+    "id": "N",
+    "title": "Missing passage",
+    "body": null,
+    "fixture_role": "missing text",
+    "recall_rank": 4
+  },
+  {
+    "id": "D",
+    "title": "Forgot-password steps",
+    "body": "If you cannot sign in, choose Forgot password on the sign-in page. Enter your email, open the reset link, and set a new password.",
+    "fixture_role": "direct answer",
+    "recall_rank": 5
+  },
+  {
+    "id": "E",
+    "title": "Missing reset email",
+    "body": "If the reset email is missing, check spam and confirm the account email before requesting a new link.",
+    "fixture_role": "related",
+    "recall_rank": 6
+  },
+  {
+    "id": "F",
+    "title": "Color theme",
+    "body": "Change the application color theme from Appearance settings.",
+    "fixture_role": "distractor",
+    "recall_rank": 7
+  },
+  {
+    "id": "W",
+    "title": "Blank passage",
+    "body": "   ",
+    "fixture_role": "missing text",
+    "recall_rank": 8
+  }
+]

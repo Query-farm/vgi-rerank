@@ -1,0 +1,8 @@
+{
+  "source": "Eight entirely invented help-page candidates with a deliberately hand-assigned recall order; no production search logs or observed relevance judgments.",
+  "file": "candidates.json",
+  "sha256": "c03bdafa14c1113e4d2f2b8217277b286fff29194477e9285da9edfb9a7b9753",
+  "fixture_roles": "Author annotations for interpreting this demonstration; not a benchmark or model ground truth.",
+  "query": "How do I reset my password if I cannot sign in?",
+  "clock": "No observed event or capture timestamp."
+}

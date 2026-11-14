@@ -221,3 +221,7 @@ Written by [Query.Farm](https://query.farm).
 
 Copyright 2026 Query Farm LLC - https://query.farm
 
+
+## SQL notebook
+
+See the [executed reranking walkthrough](notebooks/README.md) for candidate budgets, local model scores and rank changes, with pinned model assets and a reproducible notebook environment.
