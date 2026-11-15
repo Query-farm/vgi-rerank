@@ -1,0 +1,14 @@
+{
+  "query": "SELECT rerank.main.rerank_score('How do I reset my password?','Use the forgot password link on the sign-in page.','Xenova/ms-marco-MiniLM-L-6-v2') AS relevant,rerank.main.rerank_score('How do I reset my password?','Cats sleep in sunshine.','Xenova/ms-marco-MiniLM-L-6-v2') AS unrelated",
+  "captured_at": "2026-11-15T00:43:11.724515+00:00",
+  "columns": [
+    "relevant",
+    "unrelated"
+  ],
+  "rows": [
+    [
+      -2.904693841934204,
+      -11.22740650177002
+    ]
+  ]
+}

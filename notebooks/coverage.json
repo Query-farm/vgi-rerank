@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-released.json",
+      "sha256": "c56c9ce219949b04374d80baf9318ceb8c0c66e744c33e4a5eafe8006df0d752",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-15T00:50:57.539916+00:00",
+        "catalog_sha256": "c56c9ce219949b04374d80baf9318ceb8c0c66e744c33e4a5eafe8006df0d752",
+        "notes": "Complete actual catalog: rerank_score has two arity overloads; supported_models has function and same-named table access. Two logical names. No views, COPY handlers, authenticated or write surfaces. Release/current worker package, entrypoint and root dependencies are byte-identical. Current source is not built or executed; current coverage is reviewed interface compatibility. Five advertised models are metadata, not a claim that every model works; only the pinned MiniLM snapshot runs."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "1b3739d5290fe3af5c272e5a59f88de9b1febba15c1cd59c5d5270b867834c69",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-15T00:50:57.539916+00:00",
+        "catalog_sha256": "1b3739d5290fe3af5c272e5a59f88de9b1febba15c1cd59c5d5270b867834c69",
+        "notes": "Complete actual catalog: rerank_score has two arity overloads; supported_models has function and same-named table access. Two logical names. No views, COPY handlers, authenticated or write surfaces. Release/current worker package, entrypoint and root dependencies are byte-identical. Current source is not built or executed; current coverage is reviewed interface compatibility. Five advertised models are metadata, not a claim that every model works; only the pinned MiniLM snapshot runs."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_candidate_budget_before_reranking.ipynb",
+      "sha256": "ed0a46c92edec16a44caade02c63950448fd37d696f7501588a637e4d4fa6bf6",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "00723a5f4958224f62f37975413af8d635c359e4156f2babc0725ece71ecb8a4"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "supported_models"
+      },
+      "notebook": "01_candidate_budget_before_reranking.ipynb",
+      "sql": [
+        {
+          "cell": "connection",
+          "reference": "rerank.main.supported_models"
+        }
+      ],
+      "narrative_cells": [
+        "attach-story",
+        "question"
+      ],
+      "result_cells": [
+        "model-finding",
+        "result-finding",
+        "checks-finding"
+      ],
+      "interpretation_cells": [
+        "model-finding",
+        "attach-story"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-15T00:50:57.539916+00:00",
+        "notebook_sha256": "ed0a46c92edec16a44caade02c63950448fd37d696f7501588a637e4d4fa6bf6",
+        "catalog_sha256": [
+          "c56c9ce219949b04374d80baf9318ceb8c0c66e744c33e4a5eafe8006df0d752",
+          "1b3739d5290fe3af5c272e5a59f88de9b1febba15c1cd59c5d5270b867834c69"
+        ],
+        "purpose": "Validate the chosen local model and label selected passages with its catalog-reported weight license before interpreting scores.",
+        "finding": "The complete five-row registry yields one exact MiniLM match. The selected row gates scoring and carries model/license into result rows; assertions enforce unique model names and consistent labels. Immutable weight revision is verified separately. Other advertised models are neither downloaded nor benchmarked; the license string is provenance only."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "rerank_score"
+      },
+      "notebook": "01_candidate_budget_before_reranking.ipynb",
+      "sql": [
+        {
+          "cell": "score-query",
+          "reference": "rerank.main.rerank_score"
+        }
+      ],
+      "narrative_cells": [
+        "question",
+        "score-story",
+        "ledger-story",
+        "scores-story",
+        "movement-story",
+        "experiment-story"
+      ],
+      "result_cells": [
+        "scores-chart",
+        "movement-chart",
+        "ledger-finding",
+        "result-finding",
+        "checks-finding"
+      ],
+      "interpretation_cells": [
+        "result-finding",
+        "scores-story",
+        "movement-story"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes",
+        "reviewed_at": "2026-11-15T00:50:57.539916+00:00",
+        "notebook_sha256": "ed0a46c92edec16a44caade02c63950448fd37d696f7501588a637e4d4fa6bf6",
+        "catalog_sha256": [
+          "c56c9ce219949b04374d80baf9318ceb8c0c66e744c33e4a5eafe8006df0d752",
+          "1b3739d5290fe3af5c272e5a59f88de9b1febba15c1cd59c5d5270b867834c69"
+        ],
+        "purpose": "Show why a local reranker cannot recover a passage absent from its bounded candidate set.",
+        "finding": "A materialized authored prefix precedes actual local model inference. Default four inputs produce three scores and one NULL; widening to eight admits six usable passages and two NULLs. The planted direct answer becomes eligible; measured ranking and chosen text are interpreted without an accuracy or probability claim. Excluded versus NULL versus negative scores stay separate, and fourteen SQL checks cover preservation/ordering/provenance. Query, model snapshot and final selection size stay fixed."
+      }
+    }
+  ]
+}

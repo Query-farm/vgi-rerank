@@ -1,0 +1,58 @@
+{
+  "release": "v0.4.0",
+  "release_commit": "6735f18f0c609e805843b1f8e137c34f177be5b1",
+  "current_revision": "8fe51fc838f9481405426ce72d46a07a2e7e53ef",
+  "source_ci": {
+    "url": "https://github.com/Query-farm/vgi-rerank/actions/runs/43579516861",
+    "revision": "8fe51fc838f9481405426ce72d46a07a2e7e53ef",
+    "conclusion": "success"
+  },
+  "runtime": "Haybarn2.0.0rc11",
+  "launch": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-rerank@v0.4.0 vgi-rerank-worker",
+  "source_review": "Release and current worker package, entrypoint, pyproject and rootlock are byte-identical. Only GitHub workflows/README changed outside notebooks. Complete actual release catalog establishes source-compatible current interface; no current-source runtime/build is claimed.",
+  "changed_paths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/release.yml",
+    "README.md"
+  ],
+  "worker_source_tree": "35872349fdfd75e35b5f3e050e8b2602a0a1943c",
+  "root_dependencies_unchanged": true,
+  "scope": "Complete fixed catalog:rerank_score with2arityoverloads and supported_models function/same-name table alias. Two logical(schema,name)surfaces. Allread/noauth; no views/COPY. Advertised5models are capabilitymetadata, not proof allmodelweights/backend combinations execute. Notebook executes one pinned MiniLM model only.",
+  "metadata_provenance": "Actual catalog-metadata.json vgi.title/vgi.subtitle.",
+  "resolved_worker_packages": {
+    "vgi-rerank": "0.4.0",
+    "vgi-python": "0.51.1",
+    "vgi-rpc": "0.53.1",
+    "fastembed": "0.9.1",
+    "onnxruntime": "1.32.0",
+    "huggingface-hub": "1.33.0"
+  },
+  "model_manifest": {
+    "model_name": "Xenova/ms-marco-MiniLM-L-6-v2",
+    "repository": "Xenova/ms-marco-MiniLM-L-6-v2",
+    "revision": "a09144355adeed5f58c8ed011d209bf8ee5a1fec",
+    "files": {
+      "config.json": {
+        "sha256": "d827779a72d27ae68cf878a6fc2e954542663fe21ca515d9f4783fc96be2d37e",
+        "bytes": 824
+      },
+      "onnx/model.onnx": {
+        "sha256": "c623d0bcb99f4622beb413eaef00cfbe5db20df9f1dd982da4b4f26022881870",
+        "bytes": 90992115
+      },
+      "special_tokens_map.json": {
+        "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+        "bytes": 125
+      },
+      "tokenizer.json": {
+        "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
+        "bytes": 711396
+      },
+      "tokenizer_config.json": {
+        "sha256": "0b29c7bfc889e53b36d9dd3e686dd4300f6525110eaa98c76a5dafceb2029f53",
+        "bytes": 1242
+      }
+    }
+  },
+  "model_first_use": "Fresh worktree model-cache downloaded allfive pinned files with size+SHA verification before actual scoring probe; no model fallback."
+}

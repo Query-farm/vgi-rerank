@@ -1,0 +1,152 @@
+{
+  "query": "SELECT * FROM duckdb_functions() WHERE database_name='rerank' ORDER BY schema_name,function_name",
+  "captured_at": "2026-11-15T00:43:11.688625+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "function_name",
+    "alias_of",
+    "function_type",
+    "description",
+    "comment",
+    "tags",
+    "return_type",
+    "parameters",
+    "parameter_types",
+    "varargs",
+    "macro_definition",
+    "has_side_effects",
+    "internal",
+    "extension_name",
+    "function_oid",
+    "examples",
+    "stability",
+    "categories"
+  ],
+  "rows": [
+    [
+      "rerank",
+      "22595",
+      "main",
+      "rerank_score",
+      null,
+      "scalar",
+      "Cross-encoder relevance score (DOUBLE) for a (query, document) pair using the default model (Xenova/ms-marco-MiniLM-L-6-v2). Higher = more relevant; the value is a raw logit, meaningful only RELATIVE to other documents for the SAME query. Intended for ORDER BY rerank_score(:q, doc) DESC LIMIT k over a top-K candidate set. NULL/empty query or document -> NULL.",
+      null,
+      {
+        "vgi.category": "reranking",
+        "vgi.doc_llm": "Three-argument arity overload of `rerank_score` that scores a `(query, document)` pair with an EXPLICIT reranker model instead of the default. `rerank_score(query, document, model)` returns the same `DOUBLE` relevance logit as the two-argument form (higher = more relevant, relative to the same query) but lets you pick any model returned by `supported_models()` -- e.g. a larger/heavier model for higher quality. Scalar functions are positional, so the optional model is a separate arity overload, not a named argument. NULL/empty query or document -> NULL.",
+        "vgi.doc_md": "# rerank_score(query, document, model)\n\nScore a `(query, document)` pair with an **explicit** cross-encoder model (the three-argument arity overload of `rerank_score`).\n\n## Arguments\n\n- `query`, `document` -- the pair to score.\n- `model` -- a model name from `supported_models()` (e.g. `Xenova/ms-marco-MiniLM-L-6-v2`, `BAAI/bge-reranker-base`). Heavier models trade speed for quality and download on first use.\n\n## Returns\n\n`DOUBLE` -- the same relevance logit as the two-argument form.\n\n## Notes\n\n- Scalars are positional; this is an arity overload, not a named arg.\n- NULL/empty query or document -> NULL score.",
+        "vgi.example_queries": "[{\"description\": \"Score one (query, document) pair with the default model.\", \"sql\": \"SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.')\"}, {\"description\": \"Score a pair with an explicitly chosen reranker model.\", \"sql\": \"SELECT rerank.main.rerank_score('reset password', 'Reset your password from the account settings page.', 'Xenova/ms-marco-MiniLM-L-6-v2')\"}]",
+        "vgi.executable_examples": "[{\"description\": \"Score a clearly relevant query/document pair with the default model.\", \"sql\": \"SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.') AS score\"}, {\"description\": \"Rerank an inline candidate set so the relevant passage sorts first.\", \"sql\": \"SELECT doc FROM (VALUES ('Reset your password from the account settings page.'), ('Our office is open from 9am to 5pm.')) AS t(doc) ORDER BY rerank.main.rerank_score('how do I reset my password', doc) DESC\"}]",
+        "vgi.keywords": "[\"rerank\", \"rerank_score\", \"model\", \"explicit model\", \"cross-encoder\", \"relevance\", \"ranking\", \"retrieval\", \"bge-reranker\", \"ms-marco\", \"choose model\"]",
+        "vgi.title": "Rerank Score With Explicit Model"
+      },
+      "DOUBLE",
+      [
+        "query",
+        "document"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22599,
+      [
+        "SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.')"
+      ],
+      "CONSISTENT",
+      [
+        "rerank",
+        "retrieval"
+      ]
+    ],
+    [
+      "rerank",
+      "22595",
+      "main",
+      "rerank_score",
+      null,
+      "scalar",
+      "Cross-encoder relevance score (DOUBLE) for a (query, document) pair with an explicit model (see supported_models()). Higher = more relevant. NULL/empty -> NULL.",
+      null,
+      {
+        "vgi.category": "reranking",
+        "vgi.doc_llm": "Three-argument arity overload of `rerank_score` that scores a `(query, document)` pair with an EXPLICIT reranker model instead of the default. `rerank_score(query, document, model)` returns the same `DOUBLE` relevance logit as the two-argument form (higher = more relevant, relative to the same query) but lets you pick any model returned by `supported_models()` -- e.g. a larger/heavier model for higher quality. Scalar functions are positional, so the optional model is a separate arity overload, not a named argument. NULL/empty query or document -> NULL.",
+        "vgi.doc_md": "# rerank_score(query, document, model)\n\nScore a `(query, document)` pair with an **explicit** cross-encoder model (the three-argument arity overload of `rerank_score`).\n\n## Arguments\n\n- `query`, `document` -- the pair to score.\n- `model` -- a model name from `supported_models()` (e.g. `Xenova/ms-marco-MiniLM-L-6-v2`, `BAAI/bge-reranker-base`). Heavier models trade speed for quality and download on first use.\n\n## Returns\n\n`DOUBLE` -- the same relevance logit as the two-argument form.\n\n## Notes\n\n- Scalars are positional; this is an arity overload, not a named arg.\n- NULL/empty query or document -> NULL score.",
+        "vgi.example_queries": "[{\"description\": \"Score one (query, document) pair with the default model.\", \"sql\": \"SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.')\"}, {\"description\": \"Score a pair with an explicitly chosen reranker model.\", \"sql\": \"SELECT rerank.main.rerank_score('reset password', 'Reset your password from the account settings page.', 'Xenova/ms-marco-MiniLM-L-6-v2')\"}]",
+        "vgi.executable_examples": "[{\"description\": \"Score a clearly relevant query/document pair with the default model.\", \"sql\": \"SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.') AS score\"}, {\"description\": \"Rerank an inline candidate set so the relevant passage sorts first.\", \"sql\": \"SELECT doc FROM (VALUES ('Reset your password from the account settings page.'), ('Our office is open from 9am to 5pm.')) AS t(doc) ORDER BY rerank.main.rerank_score('how do I reset my password', doc) DESC\"}]",
+        "vgi.keywords": "[\"rerank\", \"rerank_score\", \"model\", \"explicit model\", \"cross-encoder\", \"relevance\", \"ranking\", \"retrieval\", \"bge-reranker\", \"ms-marco\", \"choose model\"]",
+        "vgi.title": "Rerank Score With Explicit Model"
+      },
+      "DOUBLE",
+      [
+        "query",
+        "document",
+        "model"
+      ],
+      [
+        "VARCHAR",
+        "VARCHAR",
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22599,
+      [
+        "SELECT rerank.main.rerank_score('reset password', 'Reset your password from the account settings page.', 'Xenova/ms-marco-MiniLM-L-6-v2')"
+      ],
+      "CONSISTENT",
+      [
+        "rerank",
+        "retrieval"
+      ]
+    ],
+    [
+      "rerank",
+      "22595",
+      "main",
+      "supported_models",
+      null,
+      "table",
+      "Every (model, license) cross-encoder the rerank worker supports",
+      null,
+      {
+        "vgi.category": "model-discovery",
+        "vgi.doc_llm": "Discovery table listing every cross-encoder reranker model this worker can run, one row per model, with the SPDX-style license of its weights. Use it to learn which model names are valid as the optional third argument to `rerank_score(query, document, model)` and to confirm licensing before adopting a model. Takes no arguments and loads no model. Columns: `model` (the name to pass to rerank_score) and `license` (all advertised models are permissive / commercially usable).",
+        "vgi.doc_md": "# supported_models()\n\nA discovery table of every cross-encoder reranker the worker can run -- one row per model.\n\n## Result columns\n\n| column | type | description |\n|---|---|---|\n| `model` | VARCHAR | Name to pass as the optional third argument to `rerank_score(query, document, model)`. |\n| `license` | VARCHAR | SPDX-style license of the model weights. |\n\n## Notes\n\nEvery advertised model is permissive / commercially usable. Calling this function loads no model, so it is always cheap.",
+        "vgi.example_queries": "[{\"description\": \"List the supported reranker models and their licenses.\", \"sql\": \"SELECT model, license FROM rerank.main.supported_models() ORDER BY model\"}, {\"description\": \"Look up the license of the default model.\", \"sql\": \"SELECT license FROM rerank.main.supported_models() WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'\"}]",
+        "vgi.keywords": "[\"supported_models\", \"models\", \"reranker\", \"cross-encoder\", \"license\", \"discovery\", \"available models\", \"catalog\", \"ms-marco\", \"bge-reranker\", \"list models\"]",
+        "vgi.result_columns_schema": "[{\"name\": \"model\", \"type\": \"VARCHAR\", \"description\": \"Model name to pass as the optional third argument to rerank_score(query, document, model).\"}, {\"name\": \"license\", \"type\": \"VARCHAR\", \"description\": \"SPDX-style license of the model weights (every advertised model is permissive / commercially usable).\"}]",
+        "vgi.title": "Supported Reranker Models Catalog"
+      },
+      null,
+      [],
+      [],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22600,
+      [
+        "SELECT model, license FROM rerank.main.supported_models() ORDER BY model",
+        "SELECT license FROM rerank.main.supported_models() WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'"
+      ],
+      null,
+      [
+        "rerank",
+        "metadata"
+      ]
+    ]
+  ]
+}

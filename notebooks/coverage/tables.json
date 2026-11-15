@@ -1,0 +1,52 @@
+{
+  "query": "SELECT * FROM duckdb_tables() WHERE database_name='rerank'",
+  "captured_at": "2026-11-15T00:43:11.695751+00:00",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "schema_oid",
+    "table_name",
+    "table_oid",
+    "comment",
+    "tags",
+    "internal",
+    "temporary",
+    "has_primary_key",
+    "estimated_size",
+    "column_count",
+    "index_count",
+    "check_constraint_count",
+    "sql"
+  ],
+  "rows": [
+    [
+      "rerank",
+      22595,
+      "main",
+      22596,
+      "supported_models",
+      22731,
+      "Every cross-encoder reranker model the worker can run, with the license of its weights.",
+      {
+        "category": "reranking",
+        "domain": "information-retrieval",
+        "topic": "model-discovery",
+        "vgi.category": "model-discovery",
+        "vgi.doc_llm": "Discovery table listing every cross-encoder reranker model this worker can run, one row per model, with the SPDX-style license of its weights. Query it to learn which model names are valid as the optional third argument to rerank_score(query, document, model) and to confirm licensing before adopting a model. The `model` column is the name to pass to rerank_score; the `license` column is the weights' license (every advertised model is permissive / commercially usable). It returns identical rows to the supported_models() table function; prefer the parenthesis-free table form over the function call.",
+        "vgi.doc_md": "# supported_models\n\nA discovery table of every cross-encoder reranker the worker can run -- one row per model. Backed by the `supported_models()` table function, it is queried without parentheses -- project the `model` and `license` columns and order by `model`; see the examples below for ready-to-run SQL.\n\n## Columns\n\n| column | type | description |\n|---|---|---|\n| `model` | VARCHAR | Name to pass as the optional third argument to `rerank_score(query, document, model)` (primary key). |\n| `license` | VARCHAR | SPDX-style license of the model weights. |\n\n## Notes\n\nEvery advertised model is permissive / commercially usable. Reading this table loads no model, so it is always cheap.",
+        "vgi.example_queries": "[{\"description\": \"List every supported reranker model and its license.\", \"sql\": \"SELECT model, license FROM rerank.main.supported_models ORDER BY model\"}, {\"description\": \"Look up the license of the default model.\", \"sql\": \"SELECT license FROM rerank.main.supported_models WHERE model = 'Xenova/ms-marco-MiniLM-L-6-v2'\"}]",
+        "vgi.keywords": "[\"supported_models\", \"models\", \"reranker\", \"cross-encoder\", \"license\", \"discovery\", \"available models\", \"catalog\", \"ms-marco\", \"bge-reranker\", \"list models\"]",
+        "vgi.title": "Supported Reranker Models"
+      },
+      false,
+      false,
+      true,
+      0,
+      2,
+      1,
+      0,
+      "CREATE TABLE supported_models(model VARCHAR, license VARCHAR NOT NULL, PRIMARY KEY(model));"
+    ]
+  ]
+}

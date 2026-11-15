@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-rerank",
+  "revision": "v0.4.0",
+  "captured_at": "2026-11-15T00:43:11.688625+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "evidence": [
+    {
+      "path": "coverage/arguments.json",
+      "sha256": "79318cf8726e4fadd56d9604962a06ea79dae9dd898d2631612ca292022bb1bf",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/catalog-metadata.json",
+      "sha256": "8f5da9b9d334dfac713c0c0b35d6f0f0324a80c1a286f24544b6aef38df55961",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/copy-formats.json",
+      "sha256": "b46c7974df92253991edfdb02c57439d185516027886db0ba8da44fd6ee9bcef",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/functions.json",
+      "sha256": "87f687ce009313330417da070938d859a7f1d914999db85a1feedfe13c1b42f8",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/resolved-worker-packages.json",
+      "sha256": "6409a48f57792901a4c37b9b6d26b48ce5e8e688881df638574828b421af0387",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/source-compatibility.json",
+      "sha256": "88cdae3ef44ed5e597b6f4aa234e68cc11093fcfc19b33633b1e568326617b98",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/supported_models-columns.json",
+      "sha256": "6bac99e47f64815042216f7c1b181d09617012d7b74e9a33e1fb2b6ff710903c",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/supported_models.json",
+      "sha256": "93eadd7dac831d24095b15171618cbf809897ecabcd523420fd841e5351a5b51",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/tables.json",
+      "sha256": "fa87dc507c6abc58cabc889151984a4893beaeeea451fc1906b1cfe363a37961",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    },
+    {
+      "path": "coverage/views.json",
+      "sha256": "c4f79d104441387d79a97c26849163f7f12eeba676bad0d2d1690fe9adf272a8",
+      "description": "Actual functions/overloads/table alias/full arguments and output schema, runtime versions and pinnedmodel provenance."
+    }
+  ],
+  "objects": [
+    {
+      "schema": "main",
+      "name": "rerank_score",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "rerank_score(query VARCHAR, document VARCHAR) -> DOUBLE",
+        "rerank_score(query VARCHAR, document VARCHAR, model VARCHAR) -> DOUBLE"
+      ]
+    },
+    {
+      "schema": "main",
+      "name": "supported_models",
+      "kind": "function",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "supported_models() -> TABLE(model VARCHAR, license VARCHAR)"
+      ]
+    },
+    {
+      "schema": "main",
+      "name": "supported_models",
+      "kind": "table",
+      "authentication": "none",
+      "access": "read",
+      "signatures": [
+        "TABLE(model VARCHAR, license VARCHAR)"
+      ],
+      "alias_of_same_named_function": true
+    }
+  ],
+  "launch": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-rerank@v0.4.0 vgi-rerank-worker",
+  "runtime": "Haybarn2.0.0rc11",
+  "review_notes": "Complete fixed catalog:rerank_score with2arityoverloads and supported_models function/same-name table alias. Two logical(schema,name)surfaces. Allread/noauth; no views/COPY. Advertised5models are capabilitymetadata, not proof allmodelweights/backend combinations execute. Notebook executes one pinned MiniLM model only. Release and current worker package, entrypoint, pyproject and rootlock are byte-identical. Only GitHub workflows/README changed outside notebooks. Complete actual release catalog establishes source-compatible current interface; no current-source runtime/build is claimed."
+}

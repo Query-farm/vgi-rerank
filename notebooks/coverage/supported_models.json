@@ -1,0 +1,30 @@
+{
+  "query": "SELECT * FROM rerank.main.supported_models() ORDER BY model",
+  "captured_at": "2026-11-15T00:43:11.714524+00:00",
+  "columns": [
+    "model",
+    "license"
+  ],
+  "rows": [
+    [
+      "BAAI/bge-reranker-base",
+      "mit"
+    ],
+    [
+      "Xenova/ms-marco-MiniLM-L-12-v2",
+      "apache-2.0"
+    ],
+    [
+      "Xenova/ms-marco-MiniLM-L-6-v2",
+      "apache-2.0"
+    ],
+    [
+      "jinaai/jina-reranker-v1-tiny-en",
+      "apache-2.0"
+    ],
+    [
+      "jinaai/jina-reranker-v1-turbo-en",
+      "apache-2.0"
+    ]
+  ]
+}
