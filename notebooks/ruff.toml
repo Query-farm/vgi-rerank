@@ -6,7 +6,8 @@ target-version = "py313"
 select = ["E", "F", "I", "UP", "B", "SIM", "D"]
 
 [lint.per-file-ignores]
-"*.ipynb" = ["F821"]
+# Prose strings run long; imports follow the bootstrap cell; SQL magic binds result names.
+"*.ipynb" = ["E402", "E501", "F821"]
 
 [lint.pydocstyle]
 convention = "google"
