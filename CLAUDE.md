@@ -91,7 +91,7 @@ make test                      # both
 uv run --no-sync ruff check . && uv run --no-sync mypy vgi_rerank/
 ```
 
-`make test-sql` exports `VGI_RERANK_WORKER="uv run --python 3.13 rerank_worker.py"`
+`make test-sql` exports `VGI_RERANK_WORKER="uv run --python 3.14 rerank_worker.py"`
 and runs `haybarn-unittest --keep-home --test-dir . "test/sql/*"` (install once:
 `uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`). **The SQL suite is authoritative** — it
 exercises the real RPC + model path. CI runs unit + lint plus a gated `e2e` job

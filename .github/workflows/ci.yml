@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.13"]
+        python-version: ["3.14"]
 
     steps:
       - uses: actions/checkout@v6
@@ -58,7 +58,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     env:
-      UV_PYTHON: "3.13"
+      UV_PYTHON: "3.14"
     steps:
       - uses: actions/checkout@v6
 
@@ -97,11 +97,11 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v8.2.0
 
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.14
+        run: uv python install 3.14
 
       - name: Install the worker (from the lockfile, with the http extra)
-        run: uv sync --frozen --python 3.13 --extra http
+        run: uv sync --frozen --python 3.14 --extra http
 
       # Warm the fastembed/ONNX model cache so launching the worker for the lint
       # attach doesn't pay the ~80 MB download inline (best-effort; lint only
@@ -169,13 +169,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v8.2.0
 
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.14
+        run: uv python install 3.14
 
       - name: Install the worker (from the lockfile, with the http extra)
         # The `http` extra pulls in waitress so the worker can serve `--http`.
         # Harmless for the subprocess/unix legs; required for the http leg.
-        run: uv sync --frozen --python 3.13 --extra http
+        run: uv sync --frozen --python 3.14 --extra http
 
       # Pre-warm the fastembed/ONNX model cache so the first ATTACH+score isn't
       # paying the ~80 MB download inline.
