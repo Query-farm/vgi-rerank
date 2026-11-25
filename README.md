@@ -26,7 +26,7 @@ RAG retrieval stack —
 
 ```sql
 INSTALL vgi FROM community; LOAD vgi;
-ATTACH 'rerank' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.4.1 vgi-rerank-worker');
+ATTACH 'rerank' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.5.0 vgi-rerank-worker');
 
 -- Score one query/document pair (higher = more relevant).
 SELECT rerank.rerank_score('how do I reset my password',
@@ -42,6 +42,8 @@ LIMIT 10;
 SELECT * FROM rerank.supported_models();
 ```
 
+vgi-rerank 0.5.0 speaks VGI protocol 3.4, so it needs Haybarn 2.0.1 or newer (Haybarn 2.0.0 loads a 3.3 `vgi` extension that cannot attach it).
+
 ## Quick start
 
 The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from a tagged release on GitHub. `uvx` builds an isolated environment on the first ATTACH and reuses it afterwards:
@@ -50,7 +52,7 @@ The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.4.1 vgi-rerank-worker');
+ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-rerank@v0.5.0 vgi-rerank-worker');
 
 -- Score a (query, document) pair with the default model.
 SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot password link to reset it.');
@@ -59,7 +61,7 @@ SELECT rerank.main.rerank_score('how do I reset my password', 'Click the forgot 
 SELECT model, license FROM rerank.main.supported_models() ORDER BY model;
 ```
 
-Change `@v0.4.1` to move to a newer release.
+Change `@v0.5.0` to move to a newer release.
 
 The default model (~80 MB) downloads on first use and is cached on disk; see [The model](#the-model) for the cache location and other models.
 
@@ -68,7 +70,7 @@ The default model (~80 MB) downloads on first use and is cached on disk; see [Th
 - **Docker** (the image bundles the worker and its dependencies):
 
   ```sql
-  ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-rerank:0.4.1');
+  ATTACH 'rerank' AS rerank (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-rerank:0.5.0');
   ```
 
 - **From a local checkout** (`git clone https://github.com/Query-farm/vgi-rerank`), point `LOCATION` at `uv run --project /path/to/vgi-rerank vgi-rerank-worker`.
@@ -204,7 +206,7 @@ uv run --no-sync ruff check . && uv run --no-sync mypy vgi_rerank/
 
 `make test-sql` exports `VGI_RERANK_WORKER="uv run --python 3.14 rerank_worker.py"`
 and runs `haybarn-unittest --keep-home --test-dir . "test/sql/*"` (install once:
-`uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`, then put `~/.local/bin` on `PATH`).
+`uv tool install --prerelease allow 'haybarn-unittest>=2.0.1rc3,<2.1'`, then put `~/.local/bin` on `PATH`).
 
 ## License
 
